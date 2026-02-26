@@ -1,0 +1,39 @@
+{
+  "lexicon": 1,
+  "id": "app.musicsky.temp.comment",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Record representing a comment on a track, with optional threading via parent reference.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["text", "subject", "createdAt"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "maxGraphemes": 1000,
+            "description": "The comment text."
+          },
+          "subject": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Strong reference to the track being commented on."
+          },
+          "parent": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Optional strong reference to a parent comment for threading."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp of when the comment was created."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "lexicon": 1,
+  "id": "app.musicsky.temp.track",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Record representing a music track uploaded by a user.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["title", "audio", "duration", "createdAt"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "maxGraphemes": 100,
+            "description": "Title of the track."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "maxGraphemes": 1000,
+            "description": "Optional description or notes about the track."
+          },
+          "genre": {
+            "type": "string",
+            "maxLength": 256,
+            "maxGraphemes": 64,
+            "description": "Genre label for the track."
+          },
+          "audio": {
+            "type": "blob",
+            "accept": [
+              "audio/mpeg",
+              "audio/ogg",
+              "audio/wav",
+              "audio/flac",
+              "audio/aac",
+              "audio/webm"
+            ],
+            "maxSize": 52428800,
+            "description": "The audio file blob. Max 50 MB."
+          },
+          "coverArt": {
+            "type": "blob",
+            "accept": ["image/png", "image/jpeg", "image/webp"],
+            "maxSize": 1000000,
+            "description": "Optional cover art image. Max 1 MB."
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Duration of the track in seconds."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp of when the track was uploaded."
+          }
+        }
+      }
+    }
+  }
+}
