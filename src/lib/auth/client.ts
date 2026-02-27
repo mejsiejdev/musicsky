@@ -8,7 +8,7 @@ import type {
 } from "@atproto/oauth-client-node";
 
 export const SCOPE =
-  "atproto rpc:app.bsky.actor.getProfile?aud=did:web:api.bsky.app%23bsky_appview";
+  "atproto transition:generic rpc:app.bsky.actor.getProfile?aud=did:web:api.bsky.app%23bsky_appview blob:audio/* blob:image/*";
 
 // Use globalThis to persist across Next.js hot reloads
 const globalAuth = globalThis as unknown as {
