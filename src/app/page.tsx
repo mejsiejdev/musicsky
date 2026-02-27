@@ -19,46 +19,44 @@ export default async function Home() {
   const { data: profile } = await agent.getProfile({ actor: session.did });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <main className="flex flex-col gap-4 w-full max-w-md mx-auto p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 mb-2">MusicSky</h1>
-        </div>
+    <main className="flex flex-col gap-4 w-full max-w-md mx-auto p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-indigo-600 mb-2">MusicSky</h1>
+      </div>
 
-        <div className="bg-card rounded-lg border border-input p-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-row gap-4 items-center">
-                <Activity mode={profile.avatar ? "visible" : "hidden"}>
-                  <Image
-                    src={profile.avatar!}
-                    alt={profile.handle}
-                    className="size-12 rounded-full"
-                    width={100}
-                    height={100}
-                  />
+      <div className="bg-card rounded-lg border border-input p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-row gap-4 items-center">
+              <Activity mode={profile.avatar ? "visible" : "hidden"}>
+                <Image
+                  src={profile.avatar!}
+                  alt={profile.handle}
+                  className="size-12 rounded-full"
+                  width={100}
+                  height={100}
+                />
+              </Activity>
+              <div className="flex flex-col">
+                <Activity mode={profile.displayName ? "visible" : "hidden"}>
+                  <p className="font-semibold">{profile.displayName}</p>
                 </Activity>
-                <div className="flex flex-col">
-                  <Activity mode={profile.displayName ? "visible" : "hidden"}>
-                    <p className="font-semibold">{profile.displayName}</p>
-                  </Activity>
-                  <p
-                    className={cn(
-                      profile.displayName && "text-sm text-muted-foreground",
-                    )}
-                  >
-                    @{profile.handle}
-                  </p>
-                </div>
+                <p
+                  className={cn(
+                    profile.displayName && "text-sm text-muted-foreground",
+                  )}
+                >
+                  @{profile.handle}
+                </p>
               </div>
-              <LogoutButton />
             </div>
+            <LogoutButton />
           </div>
         </div>
-        <Button asChild>
-          <Link href="/upload">Upload a track</Link>
-        </Button>
-      </main>
-    </div>
+      </div>
+      <Button asChild>
+        <Link href="/upload">Upload a song</Link>
+      </Button>
+    </main>
   );
 }

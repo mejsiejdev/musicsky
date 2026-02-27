@@ -17,8 +17,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setLoading(true);
     setError(null);
 
@@ -44,39 +44,37 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm mx-auto">
-        <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>
-            Enter your handle to sign in to your account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Field data-invalid={!!error}>
-              <FieldLabel htmlFor="handle">Handle</FieldLabel>
-              <Input
-                id="handle"
-                type="text"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                placeholder="user.example.com"
-                disabled={loading}
-              />
-              <FieldError>{error}</FieldError>
-            </Field>
+    <Card className="w-full max-w-sm mx-auto">
+      <CardHeader>
+        <CardTitle>Sign in</CardTitle>
+        <CardDescription>
+          Enter your handle to sign in to your account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Field data-invalid={!!error}>
+            <FieldLabel htmlFor="handle">Handle</FieldLabel>
+            <Input
+              id="handle"
+              type="text"
+              value={handle}
+              onChange={(event) => setHandle(event.target.value)}
+              placeholder="user.example.com"
+              disabled={loading}
+            />
+            <FieldError>{error}</FieldError>
+          </Field>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !handle}
-            >
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || !handle}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
