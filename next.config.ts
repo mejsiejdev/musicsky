@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/img/avatar/plain/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.bsky.network",
+      },
     ],
   },
 };
