@@ -1,7 +1,6 @@
 "use server";
 
 import { Agent } from "@atproto/api";
-import { TID } from "@atproto/common-web";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 
@@ -38,12 +37,9 @@ export async function uploadSong(formData: FormData) {
         : undefined;
 
     // Create the track record
-    const rkey = TID.nextStr();
-
-    await agent.com.atproto.repo.putRecord({
+    await agent.com.atproto.repo.createRecord({
       repo: agent.assertDid,
       collection: "app.musicsky.temp.track",
-      rkey,
       record: {
         $type: "app.musicsky.temp.track",
         title,
