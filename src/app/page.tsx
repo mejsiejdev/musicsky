@@ -7,6 +7,7 @@ import { Activity } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function Home() {
   const session = await getSession();
@@ -20,8 +21,9 @@ export default async function Home() {
 
   return (
     <main className="flex flex-col gap-4 w-full max-w-md mx-auto p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-indigo-600 mb-2">MusicSky</h1>
+      <div className="mb-8 flex flex-row justify-between items-center">
+        <h1 className="text-3xl font-bold text-primary">MusicSky</h1>
+        <ThemeToggle />
       </div>
 
       <div className="bg-card rounded-lg border border-input p-6">
@@ -41,13 +43,14 @@ export default async function Home() {
                 <Activity mode={profile.displayName ? "visible" : "hidden"}>
                   <p className="font-semibold">{profile.displayName}</p>
                 </Activity>
-                <p
+                <Link
+                  href={`/${profile.handle}`}
                   className={cn(
                     profile.displayName && "text-sm text-muted-foreground",
                   )}
                 >
                   @{profile.handle}
-                </p>
+                </Link>
               </div>
             </div>
             <LogoutButton />

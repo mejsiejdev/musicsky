@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Login() {
   const [handle, setHandle] = useState("");
@@ -45,11 +46,14 @@ export default function Login() {
 
   return (
     <Card className="w-full max-w-sm mx-auto">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>
-          Enter your handle to sign in to your account.
-        </CardDescription>
+      <CardHeader className="flex flex-row justify-between">
+        <div className="flex flex-col gap-4">
+          <CardTitle>Sign in</CardTitle>
+          <CardDescription>
+            Enter your handle to sign in to your account.
+          </CardDescription>
+        </div>
+        <ThemeToggle />
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
