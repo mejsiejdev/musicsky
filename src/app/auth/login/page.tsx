@@ -63,7 +63,9 @@ export default function Login() {
               id="handle"
               type="text"
               value={handle}
-              onChange={(event) => setHandle(event.target.value)}
+              onChange={(event) => {
+                setHandle(event.target.value);
+              }}
               placeholder="user.example.com"
               disabled={loading}
             />
