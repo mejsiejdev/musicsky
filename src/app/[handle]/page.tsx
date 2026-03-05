@@ -1,8 +1,9 @@
 import { Agent } from "@atproto/api";
 import { IdResolver } from "@atproto/identity";
-import { Record as TrackRecord } from "@/lib/lexicons/types/app/musicsky/temp/track";
-import { Song } from "./song";
+import { type Record as TrackRecord } from "@/lib/lexicons/types/app/musicsky/temp/track";
+import { Song } from "@/components/song";
 import { notFound } from "next/navigation";
+import { cacheTag } from "next/cache";
 
 export async function getDid(handle: string) {
   const agent = new Agent("https://public.api.bsky.app");
@@ -35,6 +36,8 @@ export async function getPds(did: string) {
 }
 
 export async function getSongs(pds: string, did: string) {
+  "use cache";
+  cacheTag("songs");
   try {
     const agent = new Agent(pds);
 
@@ -43,19 +46,18 @@ export async function getSongs(pds: string, did: string) {
       collection: "app.musicsky.temp.track",
       limit: 50,
     });
-
-    console.log(data);
-
     return data.records.map((record) => {
       const value = record.value as TrackRecord;
       return {
-        rkey: record.uri.split("/")[4],
+        rkey: record.uri.split("/")[4]!,
         title: value.title,
-        coverArt: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt?.ref?.toString()}`,
+        coverArt: value.coverArt
+          ? `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt?.ref?.toString()}`
+          : null,
         audio: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.audio.ref.toString()}`,
-        genre: value.genre,
+        genre: value.genre ?? null,
         duration: value.duration,
-        description: value.description,
+        description: value.description ?? null,
         isOwner: did === record.uri.split("/")[2],
       };
     });

@@ -3,8 +3,13 @@
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Agent } from "@atproto/api";
+import { updateTag } from "next/cache";
 
-export async function deleteSong(rkey: string) {
+export async function deleteSong(
+  _prevState: { success?: boolean; error?: string } | null,
+  formData: FormData,
+) {
+  const rkey = formData.get("rkey") as string;
   const session = await getSession();
   if (!session) {
     redirect("/auth/login");
@@ -16,6 +21,7 @@ export async function deleteSong(rkey: string) {
       collection: "app.musicsky.temp.track",
       rkey,
     });
+    updateTag("songs");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete song:", error);
