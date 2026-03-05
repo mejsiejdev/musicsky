@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   reactCompiler: true,
+  serverExternalPackages: ["better-sqlite3"],
   experimental: {
     serverActions: {
       bodySizeLimit: "55mb",
