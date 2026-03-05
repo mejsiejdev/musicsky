@@ -1,30 +1,28 @@
-import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { AvatarSection } from "@/components/avatar-section";
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function Home() {
   return (
-    <main className="flex flex-col gap-4 w-full max-w-md mx-auto p-8">
-      <div className="mb-8 flex flex-row justify-between items-center">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-primary">MusicSky</h1>
-          <h2 className="text-sm text-muted-foreground">
-            Listen and share the music in the Atmosphere.
-          </h2>
-        </div>
-        <div className="flex flex-row gap-2">
-          <ThemeToggle />
-          <Suspense fallback={<Skeleton className="size-8 rounded-full" />}>
-            <AvatarSection />
-          </Suspense>
-        </div>
+    <main className="flex flex-col gap-4 max-w-lg">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-primary">Hello!</h1>
+        <h2 className="text-xl">
+          This is MusicSky. A place to listen and share the music in the
+          Atmosphere.
+        </h2>
       </div>
-      <Button asChild>
-        <Link href="/upload">Upload a song</Link>
-      </Button>
+      <p>
+        This is a work in progress. For now you can log in, upload music and
+        listen to it on your profile. Listening to other people&apos;s music by
+        typing out their handle in the url should work too. <br />
+        <br />
+        Below should be a feed of newly uploaded songs, but this requires a
+        dedicated backend which I will implement in the future once I implement
+        the basic functionality, like liking songs, etc.
+        <br />
+        Please check back later for more updates. <br />
+        <br />
+        Thank you for checking this out!
+        <br />
+        Maciej
+      </p>
     </main>
   );
 }

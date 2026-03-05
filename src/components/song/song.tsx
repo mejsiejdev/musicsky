@@ -1,17 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import {
-  DownloadIcon,
-  EllipsisIcon,
-  PencilIcon,
-  Share2Icon,
-} from "lucide-react";
+import { EllipsisIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DeleteDialog } from "./delete-dialog";
@@ -53,7 +46,8 @@ export function Song({
           <DropdownMenuTrigger asChild>
             <EllipsisIcon className="cursor-pointer" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent align="end">
+            {/*
             <DropdownMenuItem>
               <Share2Icon />
               Share
@@ -62,13 +56,15 @@ export function Song({
               <DownloadIcon />
               Download
             </DropdownMenuItem>
+            */}
             {isOwner && (
               <>
+                {/* 
                 <DropdownMenuItem>
                   <PencilIcon />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator />*/}
                 <DeleteDialog rkey={rkey} />
               </>
             )}
