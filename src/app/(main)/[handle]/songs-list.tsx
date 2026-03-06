@@ -67,7 +67,12 @@ async function getSongs(pds: string, did: string) {
   }
 }
 
-export async function SongsList({ handle }: { handle: string }) {
+export async function SongsList({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}) {
+  const { handle } = await params;
   const did = await getDid(handle);
   if (!did) {
     notFound();

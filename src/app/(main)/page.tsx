@@ -11,7 +11,7 @@ export default function Home() {
       <p>
         This is a work in progress. For now you can log in, upload music and
         listen to it on your profile. Listening to other people&apos;s music by
-        typing out their handle in the url should work too. <br />
+        typing out their handle in the URL should work too. <br />
         <br />
         Below should be a feed of newly uploaded songs, but this requires a
         dedicated backend which I will implement in the future once I implement

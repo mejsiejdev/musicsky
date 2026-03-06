@@ -1,16 +1,18 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import { SongsList } from "./songs-list";
+import { Info } from "./info";
 
 export default async function UserPage({
   params,
 }: {
   params: Promise<{ handle: string }>;
 }) {
-  const { handle } = await params;
   return (
     <main className="flex flex-col gap-8 w-full">
-      <h1 className="text-2xl font-semibold">Songs by {handle}</h1>
+      <Suspense fallback={<Skeleton className="w-full h-24" />}>
+        <Info params={params} />
+      </Suspense>
       <Suspense
         fallback={
           <>
@@ -20,7 +22,7 @@ export default async function UserPage({
           </>
         }
       >
-        <SongsList handle={handle} />
+        <SongsList params={params} />
       </Suspense>
     </main>
   );
