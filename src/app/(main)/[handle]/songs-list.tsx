@@ -82,11 +82,5 @@ export async function SongsList({
     notFound();
   }
   const songs = await getSongs(pds, did);
-  return (
-    <div className="flex flex-col gap-4">
-      {songs.map((song) => (
-        <Song key={song.title} {...song} />
-      ))}
-    </div>
-  );
+  return songs.map((song) => <Song key={song.title} {...song} />);
 }

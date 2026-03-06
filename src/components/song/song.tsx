@@ -33,13 +33,22 @@ export function Song({
       <div className="flex flex-row gap-4">
         <div className="w-full flex flex-row gap-4">
           {coverArt && (
-            <Image src={coverArt} alt={title} width={100} height={100} />
+            <Image
+              className="rounded-md size-24"
+              src={coverArt}
+              alt={title}
+              width={100}
+              height={100}
+            />
           )}
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold">{title}</h2>
             {genre && <h3>{genre}</h3>}
             {description && <p>{description}</p>}
-            <p>{duration}</p>
+            <p>
+              {Math.floor(duration / 60)}:
+              {String(duration % 60).padStart(2, "0")}
+            </p>
           </div>
         </div>
         <DropdownMenu>
