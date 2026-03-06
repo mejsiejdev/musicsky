@@ -23,9 +23,6 @@ export default function MainLayout({
               Listen and share the music in the Atmosphere.
             </h2>
           </div>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="w-full h-9 rounded-full" />
-          ))}
         </div>
         <div className="flex flex-col gap-4">
           <Suspense fallback={<Skeleton className="w-full h-9 rounded-full" />}>
@@ -36,7 +33,7 @@ export default function MainLayout({
           </Button>
         </div>
       </div>
-      <div className="max-w-lg w-full pb-4 px-4 pt-8">{children}</div>
+      <div className="max-w-lg w-full p-4">{children}</div>
     </div>
   );
 }
