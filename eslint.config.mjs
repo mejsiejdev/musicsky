@@ -12,8 +12,9 @@ const eslintConfig = defineConfig([
       "func-style": ["error", "declaration", { allowArrowFunctions: true }],
       "@typescript-eslint/consistent-type-imports": [
         "error",
-        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+        { prefer: "type-imports", fixStyle: "separate-type-imports" },
       ],
+      "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
