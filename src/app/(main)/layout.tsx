@@ -36,9 +36,6 @@ export default function MainLayout({
           <Suspense fallback={<Skeleton className="w-full h-9 rounded-full" />}>
             <AvatarSection />
           </Suspense>
-          <Button asChild>
-            <Link href="/upload">Upload a song</Link>
-          </Button>
         </div>
       </div>
       <div className="max-w-lg w-full p-4">{children}</div>
