@@ -4,6 +4,7 @@ import { AvatarSection } from "@/components/avatar-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HomeIcon } from "lucide-react";
 
 export default function MainLayout({
   children,
@@ -23,7 +24,14 @@ export default function MainLayout({
               Listen and share the music in the Atmosphere.
             </h2>
           </div>
+          <Button asChild variant="ghost" className="justify-start">
+            <Link href="/">
+              <HomeIcon />
+              Home
+            </Link>
+          </Button>
         </div>
+
         <div className="flex flex-col gap-4">
           <Suspense fallback={<Skeleton className="w-full h-9 rounded-full" />}>
             <AvatarSection />
