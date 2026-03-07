@@ -1,45 +1,50 @@
 "use client";
 
 import Image from "next/image";
-import {
-  EllipsisIcon,
-  RepeatIcon,
-  HeartIcon,
-  MessageSquareIcon,
-  Share2Icon,
-} from "lucide-react";
+import { EllipsisIcon, RepeatIcon, HeartIcon, Share2Icon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DeleteDialog } from "./delete-dialog";
+import { useOptimistic, useTransition } from "react";
+import {
+  likeAction,
+  unlikeAction,
+  repostAction,
+  unrepostAction,
+} from "./interaction-actions";
+import { cn } from "@/lib/utils";
+import type { SongProps } from "@/types/song";
 
 const PUBLIC_URL = process.env.PUBLIC_URL ?? "localhost:3000";
 
-export function Song({
-  rkey,
-  title,
-  slug,
-  coverArt,
-  audio,
-  genre,
-  duration,
-  description,
-  author,
-  isOwner,
-}: {
-  rkey: string;
-  title: string;
-  slug: string;
-  coverArt: string | null;
-  audio: string;
-  genre: string | null;
-  duration: number;
-  description: string | null;
-  author: string;
-  isOwner: boolean;
-}) {
+export function Song({ song }: { song: SongProps }) {
+  const {
+    uri,
+    cid,
+    rkey,
+    title,
+    slug,
+    coverArt,
+    audio,
+    genre,
+    duration,
+    description,
+    author,
+    isOwner,
+    likeRkey,
+    repostRkey,
+  } = song;
+  const [, startTransition] = useTransition();
+  const [optimisticLiked, setOptimisticLiked] = useOptimistic(
+    likeRkey !== null,
+  );
+  const [optimisticReposted, setOptimisticReposted] = useOptimistic(
+    repostRkey !== null,
+  );
+
   async function handleShare() {
     try {
       await navigator.clipboard.writeText(`${PUBLIC_URL}/${author}/${slug}`);
@@ -47,6 +52,30 @@ export function Song({
     } catch (err) {
       console.error("Error copying link:", err);
     }
+  }
+
+  function handleLike() {
+    startTransition(async () => {
+      if (optimisticLiked) {
+        setOptimisticLiked(false);
+        if (likeRkey) await unlikeAction(likeRkey);
+      } else {
+        setOptimisticLiked(true);
+        await likeAction(uri, cid);
+      }
+    });
+  }
+
+  function handleRepost() {
+    startTransition(async () => {
+      if (optimisticReposted) {
+        setOptimisticReposted(false);
+        if (repostRkey) await unrepostAction(repostRkey);
+      } else {
+        setOptimisticReposted(true);
+        await repostAction(uri, cid);
+      }
+    });
   }
 
   return (
@@ -75,18 +104,28 @@ export function Song({
       </div>
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row gap-12">
-          <div className="flex flex-row items-center gap-2">
-            <MessageSquareIcon size={18} />
-            <p className="text-sm">6</p>
-          </div>
-          <div className="flex flex-row items-center gap-2">
-            <RepeatIcon size={18} />
-            <p className="text-sm">2</p>
-          </div>
-          <div className="flex flex-row items-center gap-2">
-            <HeartIcon size={18} />
-            <p className="text-sm">12</p>
-          </div>
+          <button
+            onClick={handleRepost}
+            aria-label="Repost"
+            className="flex flex-row items-center gap-2 cursor-pointer"
+          >
+            <RepeatIcon
+              size={18}
+              className={cn(optimisticReposted && "text-green-500")}
+              fill={optimisticReposted ? "currentColor" : "none"}
+            />
+          </button>
+          <button
+            onClick={handleLike}
+            aria-label="Like"
+            className="flex flex-row items-center gap-2 cursor-pointer"
+          >
+            <HeartIcon
+              size={18}
+              className={cn(optimisticLiked && "text-red-500")}
+              fill={optimisticLiked ? "currentColor" : "none"}
+            />
+          </button>
         </div>
         <div className="flex flex-row items-center gap-4">
           <Share2Icon
@@ -109,7 +148,7 @@ export function Song({
             */}
               {isOwner && (
                 <>
-                  {/* 
+                  {/*
                 <DropdownMenuItem>
                   <PencilIcon />
                   Edit

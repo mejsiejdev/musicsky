@@ -21,7 +21,7 @@ export async function deleteSong(
       collection: "app.musicsky.temp.song",
       rkey,
     });
-    updateTag("songs");
+    updateTag(`songs-${agent.assertDid}`);
     return { success: true };
   } catch (error) {
     console.error("Failed to delete song:", error);
