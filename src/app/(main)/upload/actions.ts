@@ -13,14 +13,19 @@ export async function uploadSong(formData: FormData) {
   const agent = new Agent(session);
 
   const title = formData.get("title") as string;
+  const slug = formData.get("slug") as string;
   const description = (formData.get("description") as string) || undefined;
   const genre = (formData.get("genre") as string) || undefined;
   const audio = formData.get("audio") as File;
   const coverArt = formData.get("coverArt") as File | null;
   const duration = Number(formData.get("duration"));
 
-  if (!audio || !title || !duration) {
+  if (!audio || !title || !duration || !slug) {
     return { error: "Missing required fields." };
+  }
+
+  if (!coverArt || coverArt.size === 0) {
+    return { error: "Cover art is required." };
   }
 
   try {
@@ -29,24 +34,23 @@ export async function uploadSong(formData: FormData) {
       encoding: audio.type,
     });
 
-    // Upload cover art blob (if provided)
-    const coverArtBlob =
-      coverArt && coverArt.size > 0
-        ? (await agent.uploadBlob(coverArt, { encoding: coverArt.type })).data
-            .blob
-        : undefined;
+    // Upload cover art blob
+    const { data: coverArtUpload } = await agent.uploadBlob(coverArt, {
+      encoding: coverArt.type,
+    });
 
-    // Create the track record
+    // Create the song record
     await agent.com.atproto.repo.createRecord({
       repo: agent.assertDid,
-      collection: "app.musicsky.temp.track",
+      collection: "app.musicsky.temp.song",
       record: {
-        $type: "app.musicsky.temp.track",
+        $type: "app.musicsky.temp.song",
         title,
+        slug,
         description,
         genre,
         audio: audioUpload.blob,
-        coverArt: coverArtBlob,
+        coverArt: coverArtUpload.blob,
         duration,
         createdAt: new Date().toISOString(),
       },

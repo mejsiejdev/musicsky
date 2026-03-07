@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { songSchema, type SongFormData } from "./song-schema";
 import { uploadSong } from "./actions";
@@ -14,6 +15,16 @@ import {
   FieldDescription,
   FieldError,
 } from "@/components/ui/field";
+
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 function getAudioDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -36,11 +47,21 @@ export default function SongUploadForm() {
     register,
     handleSubmit,
     setValue,
+    watch,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<SongFormData>({
     resolver: zodResolver(songSchema),
   });
+
+  const slugManuallyEdited = useRef(false);
+  const title = watch("title");
+
+  useEffect(() => {
+    if (!slugManuallyEdited.current) {
+      setValue("slug", toSlug(title ?? ""), { shouldValidate: false });
+    }
+  }, [title, setValue]);
 
   async function onAudioChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -59,10 +80,11 @@ export default function SongUploadForm() {
   async function onSubmit(data: SongFormData) {
     const formData = new FormData();
     formData.set("title", data.title);
+    formData.set("slug", data.slug);
     if (data.description) formData.set("description", data.description);
     if (data.genre) formData.set("genre", data.genre);
     formData.set("audio", data.audio);
-    if (data.coverArt) formData.set("coverArt", data.coverArt);
+    formData.set("coverArt", data.coverArt);
     formData.set("duration", String(data.duration));
 
     const result = await uploadSong(formData);
@@ -84,6 +106,24 @@ export default function SongUploadForm() {
             {...register("title")}
           />
           <FieldError>{errors.title?.message}</FieldError>
+        </Field>
+
+        <Field data-invalid={!!errors.slug}>
+          <FieldLabel htmlFor="slug">Slug</FieldLabel>
+          <FieldDescription>
+            Used in the song&apos;s URL. Lowercase letters, numbers, and hyphens
+            only.
+          </FieldDescription>
+          <Input
+            id="slug"
+            placeholder="my-song-title"
+            {...register("slug", {
+              onChange: () => {
+                slugManuallyEdited.current = true;
+              },
+            })}
+          />
+          <FieldError>{errors.slug?.message}</FieldError>
         </Field>
 
         <Field data-invalid={!!errors.description}>
@@ -122,9 +162,7 @@ export default function SongUploadForm() {
 
         <Field data-invalid={!!errors.coverArt}>
           <FieldLabel htmlFor="coverArt">Cover art</FieldLabel>
-          <FieldDescription>
-            PNG, JPEG, or WebP. Max 1 MB. Optional.
-          </FieldDescription>
+          <FieldDescription>PNG, JPEG, or WebP. Max 10 MB.</FieldDescription>
           <Input
             id="coverArt"
             type="file"
@@ -133,6 +171,7 @@ export default function SongUploadForm() {
               const file = event.target.files?.[0];
               if (file) setValue("coverArt", file, { shouldValidate: true });
             }}
+            required
           />
           <FieldError>{errors.coverArt?.message}</FieldError>
         </Field>

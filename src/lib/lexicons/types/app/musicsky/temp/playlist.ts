@@ -21,10 +21,14 @@ export interface Main {
   name: string
   /** Optional description of the playlist. */
   description?: string
-  /** Ordered list of strong references to tracks. Max 500 tracks per playlist. */
+  /** Cover art image for the playlist. Max 10 MB. */
+  coverArt?: BlobRef
+  /** Ordered list of strong references to tracks. Min 1, max 500 tracks per playlist. */
   tracks: ComAtprotoRepoStrongRef.Main[]
   /** Client-declared timestamp of when the playlist was created. */
   createdAt: string
+  /** Client-declared timestamp of when the playlist was last updated. */
+  updatedAt?: string
   [k: string]: unknown
 }
 

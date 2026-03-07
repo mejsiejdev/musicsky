@@ -8,7 +8,11 @@
       "key": "tid",
       "record": {
         "type": "object",
-        "required": ["text", "subject", "createdAt"],
+        "required": [
+          "text",
+          "reply",
+          "createdAt"
+        ],
         "properties": {
           "text": {
             "type": "string",
@@ -17,21 +21,35 @@
             "maxGraphemes": 1000,
             "description": "The comment text."
           },
-          "subject": {
+          "reply": {
             "type": "ref",
-            "ref": "com.atproto.repo.strongRef",
-            "description": "Strong reference to the track being commented on."
-          },
-          "parent": {
-            "type": "ref",
-            "ref": "com.atproto.repo.strongRef",
-            "description": "Optional strong reference to a parent comment for threading."
+            "ref": "#replyRef",
+            "description": "Information about the comment's position in the thread."
           },
           "createdAt": {
             "type": "string",
             "format": "datetime",
             "description": "Client-declared timestamp of when the comment was created."
           }
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": [
+        "root",
+        "parent"
+      ],
+      "properties": {
+        "root": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef",
+          "description": "Strong reference to the original track being commented on."
+        },
+        "parent": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef",
+          "description": "Strong reference to the immediate parent comment, or to the track itself if it's a top-level comment."
         }
       }
     }

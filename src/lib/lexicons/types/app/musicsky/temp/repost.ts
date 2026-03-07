@@ -9,26 +9,16 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'app.musicsky.temp.track'
+const id = 'app.musicsky.temp.repost'
 
 export interface Main {
-  $type: 'app.musicsky.temp.track'
-  /** Title of the track. */
-  title: string
-  /** Optional description or notes about the track. */
-  description?: string
-  /** Genre label for the track. */
-  genre?: string
-  /** The audio file blob. Max 50 MB. */
-  audio: BlobRef
-  /** Optional cover art image. Max 1 MB. */
-  coverArt?: BlobRef
-  /** Duration of the track in seconds. */
-  duration: number
-  /** Client-declared timestamp of when the track was uploaded. */
+  $type: 'app.musicsky.temp.repost'
+  subject: ComAtprotoRepoStrongRef.Main
+  /** Client-declared timestamp of when the repost was created. */
   createdAt: string
   [k: string]: unknown
 }

@@ -18,7 +18,7 @@ export async function deleteSong(
   try {
     await agent.com.atproto.repo.deleteRecord({
       repo: agent.assertDid,
-      collection: "app.musicsky.temp.track",
+      collection: "app.musicsky.temp.song",
       rkey,
     });
     updateTag("songs");

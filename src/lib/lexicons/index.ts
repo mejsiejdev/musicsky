@@ -12,12 +12,14 @@ import { type OmitKey, type Un$Typed } from './util.js'
 import * as AppMusicskyTempComment from './types/app/musicsky/temp/comment.js'
 import * as AppMusicskyTempLike from './types/app/musicsky/temp/like.js'
 import * as AppMusicskyTempPlaylist from './types/app/musicsky/temp/playlist.js'
-import * as AppMusicskyTempTrack from './types/app/musicsky/temp/track.js'
+import * as AppMusicskyTempRepost from './types/app/musicsky/temp/repost.js'
+import * as AppMusicskyTempSong from './types/app/musicsky/temp/song.js'
 
 export * as AppMusicskyTempComment from './types/app/musicsky/temp/comment.js'
 export * as AppMusicskyTempLike from './types/app/musicsky/temp/like.js'
 export * as AppMusicskyTempPlaylist from './types/app/musicsky/temp/playlist.js'
-export * as AppMusicskyTempTrack from './types/app/musicsky/temp/track.js'
+export * as AppMusicskyTempRepost from './types/app/musicsky/temp/repost.js'
+export * as AppMusicskyTempSong from './types/app/musicsky/temp/song.js'
 
 export class AtpBaseClient extends XrpcClient {
   app: AppNS
@@ -58,14 +60,16 @@ export class AppMusicskyTempNS {
   comment: AppMusicskyTempCommentRecord
   like: AppMusicskyTempLikeRecord
   playlist: AppMusicskyTempPlaylistRecord
-  track: AppMusicskyTempTrackRecord
+  repost: AppMusicskyTempRepostRecord
+  song: AppMusicskyTempSongRecord
 
   constructor(client: XrpcClient) {
     this._client = client
     this.comment = new AppMusicskyTempCommentRecord(client)
     this.like = new AppMusicskyTempLikeRecord(client)
     this.playlist = new AppMusicskyTempPlaylistRecord(client)
-    this.track = new AppMusicskyTempTrackRecord(client)
+    this.repost = new AppMusicskyTempRepostRecord(client)
+    this.song = new AppMusicskyTempSongRecord(client)
   }
 }
 
@@ -314,7 +318,7 @@ export class AppMusicskyTempPlaylistRecord {
   }
 }
 
-export class AppMusicskyTempTrackRecord {
+export class AppMusicskyTempRepostRecord {
   _client: XrpcClient
 
   constructor(client: XrpcClient) {
@@ -325,10 +329,10 @@ export class AppMusicskyTempTrackRecord {
     params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
     cursor?: string
-    records: { uri: string; value: AppMusicskyTempTrack.Record }[]
+    records: { uri: string; value: AppMusicskyTempRepost.Record }[]
   }> {
     const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'app.musicsky.temp.track',
+      collection: 'app.musicsky.temp.repost',
       ...params,
     })
     return res.data
@@ -336,9 +340,13 @@ export class AppMusicskyTempTrackRecord {
 
   async get(
     params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
-  ): Promise<{ uri: string; cid: string; value: AppMusicskyTempTrack.Record }> {
+  ): Promise<{
+    uri: string
+    cid: string
+    value: AppMusicskyTempRepost.Record
+  }> {
     const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'app.musicsky.temp.track',
+      collection: 'app.musicsky.temp.repost',
       ...params,
     })
     return res.data
@@ -349,10 +357,10 @@ export class AppMusicskyTempTrackRecord {
       ComAtprotoRepoCreateRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: Un$Typed<AppMusicskyTempTrack.Record>,
+    record: Un$Typed<AppMusicskyTempRepost.Record>,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = 'app.musicsky.temp.track'
+    const collection = 'app.musicsky.temp.repost'
     const res = await this._client.call(
       'com.atproto.repo.createRecord',
       undefined,
@@ -367,10 +375,10 @@ export class AppMusicskyTempTrackRecord {
       ComAtprotoRepoPutRecord.InputSchema,
       'collection' | 'record'
     >,
-    record: Un$Typed<AppMusicskyTempTrack.Record>,
+    record: Un$Typed<AppMusicskyTempRepost.Record>,
     headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = 'app.musicsky.temp.track'
+    const collection = 'app.musicsky.temp.repost'
     const res = await this._client.call(
       'com.atproto.repo.putRecord',
       undefined,
@@ -387,7 +395,86 @@ export class AppMusicskyTempTrackRecord {
     await this._client.call(
       'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: 'app.musicsky.temp.track', ...params },
+      { collection: 'app.musicsky.temp.repost', ...params },
+      { headers },
+    )
+  }
+}
+
+export class AppMusicskyTempSongRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: AppMusicskyTempSong.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.musicsky.temp.song',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{ uri: string; cid: string; value: AppMusicskyTempSong.Record }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.musicsky.temp.song',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppMusicskyTempSong.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.musicsky.temp.song'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppMusicskyTempSong.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.musicsky.temp.song'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'app.musicsky.temp.song', ...params },
       { headers },
     )
   }

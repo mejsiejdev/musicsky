@@ -3,7 +3,7 @@ import { Agent } from "@atproto/api";
 import { IdResolver } from "@atproto/identity";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { type Record as TrackRecord } from "@/lib/lexicons/types/app/musicsky/temp/track";
+import { type Record as TrackRecord } from "@/lib/lexicons/types/app/musicsky/temp/song";
 
 async function getDid(handle: string) {
   const agent = new Agent("https://public.api.bsky.app");
@@ -35,7 +35,7 @@ async function getPds(did: string) {
   }
 }
 
-async function getSongs(pds: string, did: string) {
+async function getSongs(pds: string, did: string, handle: string) {
   "use cache";
   cacheTag("songs");
   try {
@@ -43,7 +43,7 @@ async function getSongs(pds: string, did: string) {
 
     const { data } = await agent.com.atproto.repo.listRecords({
       repo: did,
-      collection: "app.musicsky.temp.track",
+      collection: "app.musicsky.temp.song",
       limit: 50,
     });
     return data.records.map((record) => {
@@ -51,6 +51,7 @@ async function getSongs(pds: string, did: string) {
       return {
         rkey: record.uri.split("/")[4]!,
         title: value.title,
+        slug: value.slug,
         coverArt: value.coverArt
           ? `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt?.ref?.toString()}`
           : null,
@@ -58,6 +59,7 @@ async function getSongs(pds: string, did: string) {
         genre: value.genre ?? null,
         duration: value.duration,
         description: value.description ?? null,
+        author: handle,
         isOwner: did === record.uri.split("/")[2],
       };
     });
@@ -81,6 +83,6 @@ export async function SongsList({
   if (!pds) {
     notFound();
   }
-  const songs = await getSongs(pds, did);
+  const songs = await getSongs(pds, did, handle);
   return songs.map((song) => <Song key={song.title} {...song} />);
 }

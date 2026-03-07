@@ -12,13 +12,21 @@ const AUDIO_MIME_TYPES = [
 const IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
 
 const MAX_AUDIO_SIZE = 52_428_800; // 50 MB
-const MAX_COVER_ART_SIZE = 1_000_000; // 1 MB
+const MAX_COVER_ART_SIZE = 10_000_000; // 10 MB
 
 export const songSchema = z.object({
   title: z
     .string()
     .min(1, { error: "Title is required." })
     .max(128, { error: "Title must be 128 characters or fewer." }),
+  slug: z
+    .string()
+    .min(1, { error: "Slug is required." })
+    .max(128, { error: "Slug must be 128 characters or fewer." })
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      error:
+        "Slug must be lowercase letters, numbers, and hyphens only, with no leading or trailing hyphens.",
+    }),
   description: z
     .string()
     .max(5000, { error: "Description must be 5000 characters or fewer." })
@@ -32,12 +40,11 @@ export const songSchema = z.object({
     .mime([...AUDIO_MIME_TYPES], { error: "Must be a supported audio format." })
     .max(MAX_AUDIO_SIZE, { error: "Audio file must be 50 MB or smaller." }),
   coverArt: z
-    .file()
+    .file({ error: "Cover art is required." })
     .mime([...IMAGE_MIME_TYPES], {
       error: "Cover art must be PNG, JPEG, or WebP.",
     })
-    .max(MAX_COVER_ART_SIZE, { error: "Cover art must be 1 MB or smaller." })
-    .optional(),
+    .max(MAX_COVER_ART_SIZE, { error: "Cover art must be 10 MB or smaller." }),
   duration: z
     .number()
     .int({ error: "Duration must be a whole number." })

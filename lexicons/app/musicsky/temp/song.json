@@ -1,6 +1,6 @@
 {
   "lexicon": 1,
-  "id": "app.musicsky.temp.track",
+  "id": "app.musicsky.temp.song",
   "defs": {
     "main": {
       "type": "record",
@@ -8,7 +8,14 @@
       "key": "tid",
       "record": {
         "type": "object",
-        "required": ["title", "audio", "duration", "createdAt"],
+        "required": [
+          "title",
+          "audio",
+          "coverArt",
+          "slug",
+          "duration",
+          "createdAt"
+        ],
         "properties": {
           "title": {
             "type": "string",
@@ -16,6 +23,16 @@
             "maxLength": 512,
             "maxGraphemes": 100,
             "description": "Title of the track."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "maxGraphemes": 64
+            },
+            "maxLength": 8,
+            "description": "List of tags associated with the track."
           },
           "description": {
             "type": "string",
@@ -44,14 +61,31 @@
           },
           "coverArt": {
             "type": "blob",
-            "accept": ["image/png", "image/jpeg", "image/webp"],
-            "maxSize": 1000000,
-            "description": "Optional cover art image. Max 1 MB."
+            "accept": [
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ],
+            "maxSize": 10000000,
+            "description": "Cover art image. Max 10 MB."
           },
           "duration": {
             "type": "integer",
             "minimum": 1,
             "description": "Duration of the track in seconds."
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 128,
+            "maxGraphemes": 128,
+            "description": "URL-friendly slug for the track."
+          },
+          "labels": {
+            "type": "union",
+            "refs": [
+              "com.atproto.label.defs#selfLabels"
+            ],
+            "description": "Self-label values for this track. Use for content warnings (e.g. explicit lyrics)."
           },
           "createdAt": {
             "type": "string",

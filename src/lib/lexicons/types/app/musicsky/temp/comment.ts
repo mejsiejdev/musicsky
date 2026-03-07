@@ -19,8 +19,7 @@ export interface Main {
   $type: 'app.musicsky.temp.comment'
   /** The comment text. */
   text: string
-  subject: ComAtprotoRepoStrongRef.Main
-  parent?: ComAtprotoRepoStrongRef.Main
+  reply: ReplyRef
   /** Client-declared timestamp of when the comment was created. */
   createdAt: string
   [k: string]: unknown
@@ -40,4 +39,20 @@ export {
   type Main as Record,
   isMain as isRecord,
   validateMain as validateRecord,
+}
+
+export interface ReplyRef {
+  $type?: 'app.musicsky.temp.comment#replyRef'
+  root: ComAtprotoRepoStrongRef.Main
+  parent: ComAtprotoRepoStrongRef.Main
+}
+
+const hashReplyRef = 'replyRef'
+
+export function isReplyRef<V>(v: V) {
+  return is$typed(v, id, hashReplyRef)
+}
+
+export function validateReplyRef<V>(v: V) {
+  return validate<ReplyRef & V>(v, id, hashReplyRef)
 }

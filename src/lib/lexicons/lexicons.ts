@@ -21,7 +21,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['text', 'subject', 'createdAt'],
+          required: ['text', 'reply', 'createdAt'],
           properties: {
             text: {
               type: 'string',
@@ -30,16 +30,11 @@ export const schemaDict = {
               maxGraphemes: 1000,
               description: 'The comment text.',
             },
-            subject: {
+            reply: {
               type: 'ref',
-              ref: 'lex:com.atproto.repo.strongRef',
-              description: 'Strong reference to the track being commented on.',
-            },
-            parent: {
-              type: 'ref',
-              ref: 'lex:com.atproto.repo.strongRef',
+              ref: 'lex:app.musicsky.temp.comment#replyRef',
               description:
-                'Optional strong reference to a parent comment for threading.',
+                "Information about the comment's position in the thread.",
             },
             createdAt: {
               type: 'string',
@@ -47,6 +42,24 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp of when the comment was created.',
             },
+          },
+        },
+      },
+      replyRef: {
+        type: 'object',
+        required: ['root', 'parent'],
+        properties: {
+          root: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+            description:
+              'Strong reference to the original track being commented on.',
+          },
+          parent: {
+            type: 'ref',
+            ref: 'lex:com.atproto.repo.strongRef',
+            description:
+              "Strong reference to the immediate parent comment, or to the track itself if it's a top-level comment.",
           },
         },
       },
@@ -105,15 +118,22 @@ export const schemaDict = {
               maxGraphemes: 1000,
               description: 'Optional description of the playlist.',
             },
+            coverArt: {
+              type: 'blob',
+              accept: ['image/png', 'image/jpeg', 'image/webp'],
+              maxSize: 10000000,
+              description: 'Cover art image for the playlist. Max 10 MB.',
+            },
             tracks: {
               type: 'array',
               items: {
                 type: 'ref',
                 ref: 'lex:com.atproto.repo.strongRef',
               },
+              minLength: 1,
               maxLength: 500,
               description:
-                'Ordered list of strong references to tracks. Max 500 tracks per playlist.',
+                'Ordered list of strong references to tracks. Min 1, max 500 tracks per playlist.',
             },
             createdAt: {
               type: 'string',
@@ -121,14 +141,48 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp of when the playlist was created.',
             },
+            updatedAt: {
+              type: 'string',
+              format: 'datetime',
+              description:
+                'Client-declared timestamp of when the playlist was last updated.',
+            },
           },
         },
       },
     },
   },
-  AppMusicskyTempTrack: {
+  AppMusicskyTempRepost: {
     lexicon: 1,
-    id: 'app.musicsky.temp.track',
+    id: 'app.musicsky.temp.repost',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'Record representing an account reposting a track.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['subject', 'createdAt'],
+          properties: {
+            subject: {
+              type: 'ref',
+              ref: 'lex:com.atproto.repo.strongRef',
+              description: 'Strong reference to the track being reposted.',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description:
+                'Client-declared timestamp of when the repost was created.',
+            },
+          },
+        },
+      },
+    },
+  },
+  AppMusicskyTempSong: {
+    lexicon: 1,
+    id: 'app.musicsky.temp.song',
     defs: {
       main: {
         type: 'record',
@@ -136,7 +190,14 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['title', 'audio', 'duration', 'createdAt'],
+          required: [
+            'title',
+            'audio',
+            'coverArt',
+            'slug',
+            'duration',
+            'createdAt',
+          ],
           properties: {
             title: {
               type: 'string',
@@ -144,6 +205,16 @@ export const schemaDict = {
               maxLength: 512,
               maxGraphemes: 100,
               description: 'Title of the track.',
+            },
+            tags: {
+              type: 'array',
+              items: {
+                type: 'string',
+                maxLength: 128,
+                maxGraphemes: 64,
+              },
+              maxLength: 8,
+              description: 'List of tags associated with the track.',
             },
             description: {
               type: 'string',
@@ -173,13 +244,25 @@ export const schemaDict = {
             coverArt: {
               type: 'blob',
               accept: ['image/png', 'image/jpeg', 'image/webp'],
-              maxSize: 1000000,
-              description: 'Optional cover art image. Max 1 MB.',
+              maxSize: 10000000,
+              description: 'Cover art image. Max 10 MB.',
             },
             duration: {
               type: 'integer',
               minimum: 1,
               description: 'Duration of the track in seconds.',
+            },
+            slug: {
+              type: 'string',
+              maxLength: 128,
+              maxGraphemes: 128,
+              description: 'URL-friendly slug for the track.',
+            },
+            labels: {
+              type: 'union',
+              refs: ['lex:com.atproto.label.defs#selfLabels'],
+              description:
+                'Self-label values for this track. Use for content warnings (e.g. explicit lyrics).',
             },
             createdAt: {
               type: 'string',
@@ -228,5 +311,6 @@ export const ids = {
   AppMusicskyTempComment: 'app.musicsky.temp.comment',
   AppMusicskyTempLike: 'app.musicsky.temp.like',
   AppMusicskyTempPlaylist: 'app.musicsky.temp.playlist',
-  AppMusicskyTempTrack: 'app.musicsky.temp.track',
+  AppMusicskyTempRepost: 'app.musicsky.temp.repost',
+  AppMusicskyTempSong: 'app.musicsky.temp.song',
 } as const

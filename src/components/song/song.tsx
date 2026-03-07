@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { EllipsisIcon } from "lucide-react";
+import {
+  EllipsisIcon,
+  RepeatIcon,
+  HeartIcon,
+  MessageSquareIcon,
+  Share2Icon,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,25 +15,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DeleteDialog } from "./delete-dialog";
 
+const PUBLIC_URL = process.env.PUBLIC_URL ?? "localhost:3000";
+
 export function Song({
   rkey,
   title,
+  slug,
   coverArt,
   audio,
   genre,
   duration,
   description,
+  author,
   isOwner,
 }: {
   rkey: string;
   title: string;
+  slug: string;
   coverArt: string | null;
   audio: string;
   genre: string | null;
   duration: number;
   description: string | null;
+  author: string;
   isOwner: boolean;
 }) {
+  async function handleShare() {
+    try {
+      await navigator.clipboard.writeText(`${PUBLIC_URL}/${author}/${slug}`);
+      // toast notification would be nice
+    } catch (err) {
+      console.error("Error copying link:", err);
+    }
+  }
+
   return (
     <div key={title} className="flex flex-col gap-4">
       <div className="flex flex-row gap-4">
@@ -51,34 +72,55 @@ export function Song({
             </p>
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <EllipsisIcon className="cursor-pointer" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/*
-            <DropdownMenuItem>
-              <Share2Icon />
-              Share
-            </DropdownMenuItem>
+      </div>
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-row gap-12">
+          <div className="flex flex-row items-center gap-2">
+            <MessageSquareIcon size={18} />
+            <p className="text-sm">6</p>
+          </div>
+          <div className="flex flex-row items-center gap-2">
+            <RepeatIcon size={18} />
+            <p className="text-sm">2</p>
+          </div>
+          <div className="flex flex-row items-center gap-2">
+            <HeartIcon size={18} />
+            <p className="text-sm">12</p>
+          </div>
+        </div>
+        <div className="flex flex-row items-center gap-4">
+          <Share2Icon
+            size={18}
+            className="cursor-pointer"
+            onClick={handleShare}
+            role="button"
+            aria-label="Share song"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <EllipsisIcon size={18} className="cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/*
             <DropdownMenuItem>
               <DownloadIcon />
               Download
             </DropdownMenuItem>
             */}
-            {isOwner && (
-              <>
-                {/* 
+              {isOwner && (
+                <>
+                  {/* 
                 <DropdownMenuItem>
                   <PencilIcon />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />*/}
-                <DeleteDialog rkey={rkey} />
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                  <DeleteDialog rkey={rkey} />
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <audio controls src={audio} />
     </div>
