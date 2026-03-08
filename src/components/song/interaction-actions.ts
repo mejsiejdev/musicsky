@@ -2,8 +2,9 @@
 
 import { Agent } from "@atproto/api";
 import { getSession } from "@/lib/auth/session";
+import { revalidatePath } from "next/cache";
 
-export async function likeAction(uri: string, cid: string) {
+export async function likeAction(uri: string, cid: string, handle: string) {
   const session = await getSession();
   if (!session) return;
 
@@ -17,9 +18,10 @@ export async function likeAction(uri: string, cid: string) {
       createdAt: new Date().toISOString(),
     },
   });
+  revalidatePath(`/${handle}`);
 }
 
-export async function unlikeAction(rkey: string) {
+export async function unlikeAction(rkey: string, handle: string) {
   const session = await getSession();
   if (!session) return;
 
@@ -29,9 +31,10 @@ export async function unlikeAction(rkey: string) {
     collection: "app.musicsky.temp.like",
     rkey,
   });
+  revalidatePath(`/${handle}`);
 }
 
-export async function repostAction(uri: string, cid: string) {
+export async function repostAction(uri: string, cid: string, handle: string) {
   const session = await getSession();
   if (!session) return;
 
@@ -45,9 +48,10 @@ export async function repostAction(uri: string, cid: string) {
       createdAt: new Date().toISOString(),
     },
   });
+  revalidatePath(`/${handle}`);
 }
 
-export async function unrepostAction(rkey: string) {
+export async function unrepostAction(rkey: string, handle: string) {
   const session = await getSession();
   if (!session) return;
 
@@ -57,4 +61,5 @@ export async function unrepostAction(rkey: string) {
     collection: "app.musicsky.temp.repost",
     rkey,
   });
+  revalidatePath(`/${handle}`);
 }

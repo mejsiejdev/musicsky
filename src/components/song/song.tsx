@@ -46,10 +46,10 @@ export function Song({
     startTransition(async () => {
       if (optimisticLiked) {
         setOptimisticLiked(false);
-        if (likeRkey) await unlikeAction(likeRkey);
+        if (likeRkey) await unlikeAction(likeRkey, author);
       } else {
         setOptimisticLiked(true);
-        await likeAction(uri, cid);
+        await likeAction(uri, cid, author);
       }
     });
   }
@@ -58,10 +58,10 @@ export function Song({
     startTransition(async () => {
       if (optimisticReposted) {
         setOptimisticReposted(false);
-        if (repostRkey) await unrepostAction(repostRkey);
+        if (repostRkey) await unrepostAction(repostRkey, author);
       } else {
         setOptimisticReposted(true);
-        await repostAction(uri, cid);
+        await repostAction(uri, cid, author);
       }
     });
   }

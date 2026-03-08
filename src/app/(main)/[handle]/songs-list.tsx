@@ -2,10 +2,15 @@ import { Song } from "@/components/song";
 import { type SongProps } from "@/types/song";
 import { Agent } from "@atproto/api";
 import { IdResolver } from "@atproto/identity";
+import type { OAuthSession } from "@atproto/oauth-client-node";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { type TrackRecord } from "@/types/song";
 import { getSession } from "@/lib/auth/session";
+
+function getRkey(uri: string) {
+  return uri.split("/")[4]!;
+}
 
 async function getDid(handle: string) {
   const agent = new Agent("https://public.api.bsky.app");
@@ -53,7 +58,7 @@ async function getSongs(pds: string, did: string, handle: string) {
       return {
         uri: record.uri,
         cid: record.cid,
-        rkey: record.uri.split("/")[4]!,
+        rkey: getRkey(record.uri),
         title: value.title,
         slug: value.slug,
         coverArt: value.coverArt
@@ -73,6 +78,35 @@ async function getSongs(pds: string, did: string, handle: string) {
   }
 }
 
+async function getUserInteractions(session: OAuthSession) {
+  const likedUris = new Map<string, string>();
+  const repostedUris = new Map<string, string>();
+  const agent = new Agent(session);
+  const [likesRes, repostsRes] = await Promise.all([
+    agent.com.atproto.repo.listRecords({
+      repo: session.did,
+      collection: "app.musicsky.temp.like",
+      limit: 100,
+    }),
+    agent.com.atproto.repo.listRecords({
+      repo: session.did,
+      collection: "app.musicsky.temp.repost",
+      limit: 100,
+    }),
+  ]);
+  for (const record of likesRes.data.records) {
+    const subjectUri = (record.value as { subject: { uri: string } }).subject
+      .uri;
+    likedUris.set(subjectUri, getRkey(record.uri));
+  }
+  for (const record of repostsRes.data.records) {
+    const subjectUri = (record.value as { subject: { uri: string } }).subject
+      .uri;
+    repostedUris.set(subjectUri, getRkey(record.uri));
+  }
+  return { likedUris, repostedUris };
+}
+
 export async function SongsList({
   params,
 }: {
@@ -90,34 +124,12 @@ export async function SongsList({
   const songs = await getSongs(pds, did, handle);
 
   const session = await getSession();
-  const likedUris = new Map<string, string>();
-  const repostedUris = new Map<string, string>();
-
-  if (session) {
-    const agent = new Agent(session);
-    const [likesRes, repostsRes] = await Promise.all([
-      agent.com.atproto.repo.listRecords({
-        repo: session.did,
-        collection: "app.musicsky.temp.like",
-        limit: 100,
-      }),
-      agent.com.atproto.repo.listRecords({
-        repo: session.did,
-        collection: "app.musicsky.temp.repost",
-        limit: 100,
-      }),
-    ]);
-    for (const record of likesRes.data.records) {
-      const subjectUri = (record.value as { subject: { uri: string } }).subject
-        .uri;
-      likedUris.set(subjectUri, record.uri.split("/")[4]!);
-    }
-    for (const record of repostsRes.data.records) {
-      const subjectUri = (record.value as { subject: { uri: string } }).subject
-        .uri;
-      repostedUris.set(subjectUri, record.uri.split("/")[4]!);
-    }
-  }
+  const { likedUris, repostedUris } = session
+    ? await getUserInteractions(session)
+    : {
+        likedUris: new Map<string, string>(),
+        repostedUris: new Map<string, string>(),
+      };
 
   return songs.map((song) => {
     const songProps: SongProps = {
