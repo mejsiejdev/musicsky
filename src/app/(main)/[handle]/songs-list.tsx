@@ -125,6 +125,6 @@ export async function SongsList({
       likeRkey: likedUris.get(song.uri) ?? null,
       repostRkey: repostedUris.get(song.uri) ?? null,
     };
-    return <Song key={song.title} song={songProps} />;
+    return <Song key={song.title} {...songProps} />;
   });
 }

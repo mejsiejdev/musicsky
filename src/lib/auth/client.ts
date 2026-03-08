@@ -16,7 +16,7 @@ export const SCOPE =
 
 let client: NodeOAuthClient | null = null;
 
-const PUBLIC_URL = process.env.PUBLIC_URL;
+const PUBLIC_URL = process.env.NEXT_PUBLIC_URL;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 function getClientMetadata(): OAuthClientMetadataInput {
