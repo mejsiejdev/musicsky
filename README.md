@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MusicSky
+
+> Listen and share music in the Atmosphere
+
+MusicSky is a social music platform built on the [AT Protocol](https://atproto.com/). Sign in with any ATProto-compatible server (Bluesky, self-hosted PDS, etc.) and share what you're listening to.
+
+## Tech Stack
+
+| Layer     | Technology                                       |
+| --------- | ------------------------------------------------ |
+| Framework | Next.js 16, React 19                             |
+| Auth      | AT Protocol OAuth (`@atproto/oauth-client-node`) |
+| Database  | SQLite + Kysely                                  |
+| Styling   | Tailwind CSS v4, shadcn/ui                       |
+| State     | Zustand                                          |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Run migrations and start the development server   |
+| `npm run build`     | Build for production                              |
+| `npm run start`     | Run migrations and start the production server    |
+| `npm run migrate`   | Run database migrations                           |
+| `npm run gen-key`   | Generate a private key for production deployments |
+| `npm run typecheck` | Type-check with TypeScript                        |
+| `npm run lint`      | Lint with ESLint                                  |
+| `npm run format`    | Format with Prettier                              |
 
-## Learn More
+## Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions are welcome. Please open an issue or pull request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/your-feature`)
+3. Commit your changes
+4. Open a pull request against `main`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](LICENSE.md)
