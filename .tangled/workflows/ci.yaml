@@ -8,8 +8,8 @@ dependencies:
     - nodejs
 
 steps:
-  - name: install
-    command: npm install
+  - name: install dependencies
+    command: npm ci
   - name: typecheck
     command: npm run typecheck
   - name: lint
