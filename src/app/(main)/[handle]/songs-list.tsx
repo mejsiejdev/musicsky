@@ -61,9 +61,7 @@ async function getSongs(pds: string, did: string, handle: string) {
         rkey: getRkey(record.uri),
         title: value.title,
         slug: value.slug,
-        coverArt: value.coverArt
-          ? `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt?.ref?.toString()}`
-          : null,
+        coverArt: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt?.ref?.toString()}`,
         audio: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.audio.ref.toString()}`,
         genre: value.genre ?? null,
         duration: value.duration,

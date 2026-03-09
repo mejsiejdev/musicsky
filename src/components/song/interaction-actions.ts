@@ -9,7 +9,7 @@ export async function likeAction(uri: string, cid: string, handle: string) {
   if (!session) return;
 
   const agent = new Agent(session);
-  await agent.com.atproto.repo.createRecord({
+  const result = await agent.com.atproto.repo.createRecord({
     repo: agent.assertDid,
     collection: "app.musicsky.temp.like",
     record: {
@@ -19,6 +19,7 @@ export async function likeAction(uri: string, cid: string, handle: string) {
     },
   });
   revalidatePath(`/${handle}`);
+  return result.data.uri.split("/").at(-1);
 }
 
 export async function unlikeAction(rkey: string, handle: string) {
@@ -39,7 +40,7 @@ export async function repostAction(uri: string, cid: string, handle: string) {
   if (!session) return;
 
   const agent = new Agent(session);
-  await agent.com.atproto.repo.createRecord({
+  const result = await agent.com.atproto.repo.createRecord({
     repo: agent.assertDid,
     collection: "app.musicsky.temp.repost",
     record: {
@@ -49,6 +50,7 @@ export async function repostAction(uri: string, cid: string, handle: string) {
     },
   });
   revalidatePath(`/${handle}`);
+  return result.data.uri.split("/").at(-1);
 }
 
 export async function unrepostAction(rkey: string, handle: string) {

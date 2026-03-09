@@ -16,7 +16,7 @@ export interface SongProps {
   rkey: string;
   title: string;
   slug: string;
-  coverArt: string | null;
+  coverArt: string;
   audio: string;
   genre: string | null;
   duration: number;

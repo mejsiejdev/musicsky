@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="flex flex-col gap-4 max-w-lg">
@@ -8,20 +10,25 @@ export default function Home() {
           Atmosphere.
         </h2>
       </div>
+      <p>This is a work in progress.</p>
       <p>
-        This is a work in progress. For now you can log in, upload music and
-        listen to it on your profile. Listening to other people&apos;s music by
-        typing out their handle in the URL should work too. <br />
+        For now you can log in, upload music and listen to it on your profile
+        (currently all the profile data is fetched from Bluesky, will have to
+        implement Musicsky&apos;s own profile data). Listening to other
+        people&apos;s music by typing out their handle in the URL should work
+        too. <br />
         <br />
         Below should be a feed of newly uploaded songs, but this requires a
-        dedicated backend which I will implement in the future once I implement
-        the basic functionality, like liking songs, etc.
+        dedicated backend which will be implement in the future once the basic
+        functionality is there, like liking songs, comments etc.
         <br />
         Please check back later for more updates. <br />
         <br />
         Thank you for checking this out!
         <br />
-        Maciej
+        <Link href="https://bsky.app/profile/did:plc:ix2e4nkbttdtyurtuvxbeqpw">
+          - Maciej
+        </Link>
       </p>
     </main>
   );

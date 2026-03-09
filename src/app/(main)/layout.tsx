@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HomeIcon } from "lucide-react";
+import { PlayerBar } from "@/components/player-bar";
 
 export default function MainLayout({
   children,
@@ -12,7 +13,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-row gap-4 min-h-screen items-start justify-center bg-background">
+    <div className="flex flex-row min-h-screen items-start justify-center bg-background">
       <div className="flex flex-col justify-between gap-4 w-60 border-r border-border h-screen p-4">
         <div className="flex flex-col gap-4">
           <div className="space-y-2">
@@ -31,14 +32,16 @@ export default function MainLayout({
             </Link>
           </Button>
         </div>
-
         <div className="flex flex-col gap-4">
           <Suspense fallback={<Skeleton className="w-full h-9 rounded-full" />}>
             <AvatarSection />
           </Suspense>
         </div>
       </div>
-      <div className="max-w-lg w-full p-4">{children}</div>
+      <div className="max-w-lg flex flex-col w-full h-screen border-r border-border">
+        <div className="p-4 overflow-y-auto h-full">{children}</div>
+        <PlayerBar />
+      </div>
     </div>
   );
 }

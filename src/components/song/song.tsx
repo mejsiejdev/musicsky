@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { RepeatIcon, HeartIcon } from "lucide-react";
-import { useOptimistic, useTransition } from "react";
+import { RepeatIcon, HeartIcon, PlayIcon, PauseIcon } from "lucide-react";
+import { useOptimistic, useTransition, useEffect } from "react";
+import { usePlayerStore } from "@/stores/player-store";
 import {
   likeAction,
   unlikeAction,
@@ -14,6 +15,7 @@ import { PUBLIC_URL } from "@/lib/api";
 import { SharePopover } from "./share-popover";
 import { SongMenu } from "./song-menu";
 import type { SongProps } from "@/types/song";
+import { Button } from "../ui/button";
 
 export function Song({
   uri,
@@ -33,6 +35,37 @@ export function Song({
 }: SongProps) {
   const shareUrl = `${PUBLIC_URL}/${author}/${slug}`;
   const [, startTransition] = useTransition();
+  const currentSong = usePlayerStore((song) => song.currentSong);
+  const isPlaying = usePlayerStore((song) => song.isPlaying);
+  const isCurrentSong = currentSong?.rkey === rkey;
+
+  function handlePlay() {
+    if (isCurrentSong && isPlaying) {
+      usePlayerStore.getState().pause();
+    } else if (isCurrentSong) {
+      usePlayerStore.getState().resume();
+    } else {
+      usePlayerStore.getState().playSong({
+        uri,
+        cid,
+        rkey,
+        title,
+        coverArt,
+        audio,
+        duration,
+        author,
+        likeRkey,
+        repostRkey,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (isCurrentSong) {
+      usePlayerStore.getState().setLikeRkey(likeRkey);
+      usePlayerStore.getState().setRepostRkey(repostRkey);
+    }
+  }, [isCurrentSong, likeRkey, repostRkey]);
   const [optimisticLiked, setOptimisticLiked] = useOptimistic(
     likeRkey !== null,
   );
@@ -68,8 +101,8 @@ export function Song({
 
   return (
     <div key={title} className="flex flex-col gap-4">
-      <div className="w-full flex flex-row gap-4">
-        {coverArt && (
+      <div className="w-full flex flex-row justify-between gap-4">
+        <div className="flex flex-row gap-4">
           <Image
             className="rounded-md size-24"
             src={coverArt}
@@ -77,13 +110,25 @@ export function Song({
             width={100}
             height={100}
           />
-        )}
-        <div className="flex flex-col">
-          <h2 className="text-xl font-semibold">{title}</h2>
-          {genre && <h3>{genre}</h3>}
-          {description && <p>{description}</p>}
-          <p>{formattedDuration}</p>
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold">{title}</h2>
+            {genre && <h3>{genre}</h3>}
+            {description && <p>{description}</p>}
+            <p>{formattedDuration}</p>
+          </div>
         </div>
+        <Button
+          onClick={handlePlay}
+          variant={"outline"}
+          aria-label={isCurrentSong && isPlaying ? "Pause" : "Play"}
+        >
+          {isCurrentSong && isPlaying ? (
+            <PauseIcon size={18} />
+          ) : (
+            <PlayIcon size={18} />
+          )}
+          {isCurrentSong && isPlaying ? "Now Playing" : "Play"}
+        </Button>
       </div>
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row gap-12">
@@ -115,7 +160,6 @@ export function Song({
           <SongMenu isOwner={isOwner} rkey={rkey} />
         </div>
       </div>
-      <audio controls src={audio} />
     </div>
   );
 }
