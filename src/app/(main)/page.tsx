@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { ArrowUpRightIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -26,10 +28,21 @@ export default function Home() {
         <br />
         Thank you for checking this out!
         <br />
-        <Link href="https://bsky.app/profile/did:plc:ix2e4nkbttdtyurtuvxbeqpw">
+        <Link
+          target={"_blank"}
+          href="https://bsky.app/profile/did:plc:ix2e4nkbttdtyurtuvxbeqpw"
+        >
           - Maciej
         </Link>
       </p>
+      <Button className="w-min" asChild>
+        <Link
+          target={"_blank"}
+          href="https://tangled.org/mejsiejdev.bsky.social/musicsky/"
+        >
+          Check out MusicSky repository on Tangled! <ArrowUpRightIcon />
+        </Link>
+      </Button>
     </main>
   );
 }
