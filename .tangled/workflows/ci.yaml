@@ -1,0 +1,18 @@
+engine: nixery
+when:
+  - event: ["push", "pull_request"]
+    branch: ["main"]
+
+dependencies:
+  nixpkgs:
+    - nodejs
+
+steps:
+  - name: install
+    command: npm install
+  - name: typecheck
+    command: npm run typecheck
+  - name: lint
+    command: npm run lint
+  - name: build
+    command: npm run build
