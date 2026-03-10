@@ -15,6 +15,13 @@ export function SongMenu({
   isOwner: boolean;
   rkey: string;
 }) {
+  /**
+   * the menu for now does not have non-owner actions,
+   * return nothing until they get added.
+   */
+  if (!isOwner) {
+    return null;
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

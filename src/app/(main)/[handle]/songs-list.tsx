@@ -42,7 +42,12 @@ async function getPds(did: string) {
   }
 }
 
-async function getSongs(pds: string, did: string, handle: string) {
+async function getSongs(
+  pds: string,
+  did: string,
+  handle: string,
+  sessionDid: string | null,
+) {
   "use cache";
   cacheTag(`songs-${did}`);
   try {
@@ -67,7 +72,7 @@ async function getSongs(pds: string, did: string, handle: string) {
         duration: value.duration,
         description: value.description ?? null,
         author: handle,
-        isOwner: did === record.uri.split("/")[2],
+        isOwner: sessionDid === record.uri.split("/")[2],
       };
     });
   } catch (error) {
@@ -76,9 +81,12 @@ async function getSongs(pds: string, did: string, handle: string) {
   }
 }
 
-async function getUserInteractions(session: OAuthSession) {
+async function getUserInteractions(session: OAuthSession | null) {
   const likedUris = new Map<string, string>();
   const repostedUris = new Map<string, string>();
+  if (session === null) {
+    return { likedUris, repostedUris };
+  }
   const agent = new Agent(session);
   const [likesRes, repostsRes] = await Promise.all([
     agent.com.atproto.repo.listRecords({
@@ -111,23 +119,22 @@ export async function SongsList({
   params: Promise<{ handle: string }>;
 }) {
   const { handle } = await params;
-  const did = await getDid(handle);
-  if (!did) {
+  const profileDid = await getDid(handle);
+  if (!profileDid) {
     notFound();
   }
-  const pds = await getPds(did);
+  const pds = await getPds(profileDid);
   if (!pds) {
     notFound();
   }
-  const songs = await getSongs(pds, did, handle);
-
   const session = await getSession();
-  const { likedUris, repostedUris } = session
-    ? await getUserInteractions(session)
-    : {
-        likedUris: new Map<string, string>(),
-        repostedUris: new Map<string, string>(),
-      };
+  const songs = await getSongs(
+    pds,
+    profileDid,
+    handle,
+    session ? session.did : null,
+  );
+  const { likedUris, repostedUris } = await getUserInteractions(session);
 
   return songs.map((song) => {
     const songProps: SongProps = {
