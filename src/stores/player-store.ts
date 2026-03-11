@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export interface PlayerSong {
   uri: string;
-  cid: string;
+  cid?: string;
   rkey: string;
   title: string;
   coverArt: string;

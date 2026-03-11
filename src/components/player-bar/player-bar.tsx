@@ -70,6 +70,7 @@ export function PlayerBar() {
           setLikeRkey(null);
         }
       } else {
+        if (!currentSong.cid) return;
         setOptimisticLiked(true);
         const newRkey = await likeAction(
           currentSong.uri,
@@ -91,6 +92,7 @@ export function PlayerBar() {
           setRepostRkey(null);
         }
       } else {
+        if (!currentSong.cid) return;
         setOptimisticReposted(true);
         const newRkey = await repostAction(
           currentSong.uri,
@@ -121,6 +123,7 @@ export function PlayerBar() {
             isPlaying={isPlaying}
             optimisticLiked={optimisticLiked}
             optimisticReposted={optimisticReposted}
+            canInteract={!!currentSong.cid}
             onPlay={resume}
             onPause={pause}
             onStop={stop}

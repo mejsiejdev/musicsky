@@ -12,10 +12,9 @@ export interface TrackRecord {
 
 export interface SongProps {
   uri: string;
-  cid: string;
+  cid?: string;
   rkey: string;
   title: string;
-  slug: string;
   coverArt: string;
   audio: string;
   genre: string | null;

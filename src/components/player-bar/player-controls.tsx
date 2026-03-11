@@ -11,6 +11,7 @@ interface PlayerControlsProps {
   isPlaying: boolean;
   optimisticLiked: boolean;
   optimisticReposted: boolean;
+  canInteract: boolean;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;
@@ -22,6 +23,7 @@ export function PlayerControls({
   isPlaying,
   optimisticLiked,
   optimisticReposted,
+  canInteract,
   onPlay,
   onPause,
   onStop,
@@ -30,14 +32,24 @@ export function PlayerControls({
 }: PlayerControlsProps) {
   return (
     <div className="flex items-center gap-4">
-      <button onClick={onRepost} aria-label="Repost" className="cursor-pointer">
+      <button
+        onClick={onRepost}
+        aria-label="Repost"
+        disabled={!canInteract}
+        className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <RepeatIcon
           size={18}
           className={cn(optimisticReposted && "text-green-500")}
           fill={optimisticReposted ? "currentColor" : "none"}
         />
       </button>
-      <button onClick={onLike} aria-label="Like" className="cursor-pointer">
+      <button
+        onClick={onLike}
+        aria-label="Like"
+        disabled={!canInteract}
+        className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <HeartIcon
           size={18}
           className={cn(optimisticLiked && "text-red-500")}

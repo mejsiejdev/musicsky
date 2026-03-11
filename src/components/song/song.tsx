@@ -16,13 +16,13 @@ import { SharePopover } from "./share-popover";
 import { SongMenu } from "./song-menu";
 import type { SongProps } from "@/types/song";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export function Song({
   uri,
   cid,
   rkey,
   title,
-  slug,
   coverArt,
   audio,
   genre,
@@ -33,7 +33,7 @@ export function Song({
   likeRkey,
   repostRkey,
 }: SongProps) {
-  const shareUrl = `${PUBLIC_URL}/${author}/${slug}`;
+  const shareUrl = `${PUBLIC_URL}/${author}/${rkey}`;
   const [, startTransition] = useTransition();
   const currentSong = usePlayerStore((song) => song.currentSong);
   const isPlaying = usePlayerStore((song) => song.isPlaying);
@@ -81,6 +81,7 @@ export function Song({
         setOptimisticLiked(false);
         if (likeRkey) await unlikeAction(likeRkey, author);
       } else {
+        if (!cid) return;
         setOptimisticLiked(true);
         await likeAction(uri, cid, author);
       }
@@ -93,6 +94,7 @@ export function Song({
         setOptimisticReposted(false);
         if (repostRkey) await unrepostAction(repostRkey, author);
       } else {
+        if (!cid) return;
         setOptimisticReposted(true);
         await repostAction(uri, cid, author);
       }
@@ -100,7 +102,7 @@ export function Song({
   }
 
   return (
-    <div key={title} className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="w-full flex flex-row justify-between gap-4">
         <div className="flex flex-row gap-4">
           <Image
@@ -111,7 +113,14 @@ export function Song({
             height={100}
           />
           <div className="flex flex-col">
-            <h2 className="text-xl font-semibold">{title}</h2>
+            <Button className="px-0 text-foreground" variant="link" asChild>
+              <Link
+                href={`/${author}/${rkey}`}
+                className="text-xl font-semibold"
+              >
+                {title}
+              </Link>
+            </Button>
             {genre && <h3>{genre}</h3>}
             {description && <p>{description}</p>}
             <p>{formattedDuration}</p>
@@ -135,7 +144,8 @@ export function Song({
           <button
             onClick={handleRepost}
             aria-label="Repost"
-            className="flex flex-row items-center gap-2 cursor-pointer"
+            disabled={!cid}
+            className="flex flex-row items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RepeatIcon
               size={18}
@@ -146,7 +156,8 @@ export function Song({
           <button
             onClick={handleLike}
             aria-label="Like"
-            className="flex flex-row items-center gap-2 cursor-pointer"
+            disabled={!cid}
+            className="flex flex-row items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <HeartIcon
               size={18}
