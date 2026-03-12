@@ -2,7 +2,7 @@
 
 import { Agent } from "@atproto/api";
 import { getSession } from "@/lib/auth/session";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 export async function likeAction(uri: string, cid: string, handle: string) {
   const session = await getSession();
@@ -19,6 +19,7 @@ export async function likeAction(uri: string, cid: string, handle: string) {
     },
   });
   revalidatePath(`/${handle}`);
+  updateTag(`likes-${agent.assertDid}`);
   return result.data.uri.split("/").at(-1);
 }
 
@@ -33,6 +34,7 @@ export async function unlikeAction(rkey: string, handle: string) {
     rkey,
   });
   revalidatePath(`/${handle}`);
+  updateTag(`likes-${agent.assertDid}`);
 }
 
 export async function repostAction(uri: string, cid: string, handle: string) {

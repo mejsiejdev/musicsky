@@ -57,6 +57,19 @@ export async function getPds(did: string) {
   }
 }
 
+export async function getHandleFromDid(did: string, knownPds?: string) {
+  try {
+    const pds = knownPds ?? (await getPds(did));
+    if (!pds) throw new Error("Could not resolve PDS for DID");
+    const agent = new Agent(pds);
+    const { data } = await agent.com.atproto.repo.describeRepo({ repo: did });
+    return data.handle;
+  } catch (error) {
+    console.error("Failed to resolve handle for", did, error);
+    return did;
+  }
+}
+
 export async function getUserInteractions(session: OAuthSession | null) {
   const likedUris = new Map<string, string>();
   const repostedUris = new Map<string, string>();
