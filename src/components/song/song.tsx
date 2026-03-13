@@ -193,7 +193,13 @@ export function Song({
         </div>
         <div className="flex flex-row items-center gap-4">
           <SharePopover shareUrl={shareUrl} />
-          <SongMenu isOwner={isOwner} rkey={rkey} />
+          <SongMenu
+            isOwner={isOwner}
+            rkey={rkey}
+            title={title}
+            description={description}
+            genre={genre}
+          />
         </div>
       </div>
     </div>

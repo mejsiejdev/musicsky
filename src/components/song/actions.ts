@@ -4,6 +4,71 @@ import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Agent } from "@atproto/api";
 import { updateTag } from "next/cache";
+import { editSongSchema } from "./edit-schema";
+import type { TrackRecord } from "@/types/song";
+
+export async function editSong(
+  _prevState: { success?: boolean; error?: string } | null,
+  formData: FormData,
+) {
+  const rkey = formData.get("rkey") as string;
+  const raw = {
+    title: formData.get("title") as string,
+
+    description: (formData.get("description") as string) || undefined,
+    genre: (formData.get("genre") as string) || undefined,
+  };
+
+  const parsed = editSongSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+
+  const session = await getSession();
+  if (!session) {
+    redirect("/auth/login");
+  }
+
+  const agent = new Agent(session);
+  const did = agent.assertDid;
+
+  try {
+    const { data: existing } = await agent.com.atproto.repo.getRecord({
+      repo: did,
+      collection: "app.musicsky.temp.song",
+      rkey,
+    });
+
+    const existingValue = existing.value as unknown as TrackRecord;
+
+    await agent.com.atproto.repo.putRecord({
+      repo: did,
+      collection: "app.musicsky.temp.song",
+      rkey,
+      record: {
+        title: parsed.data.title,
+        slug: existingValue.slug,
+        description: parsed.data.description,
+        genre: parsed.data.genre,
+        audio: existingValue.audio,
+        coverArt: existingValue.coverArt,
+        duration: existingValue.duration,
+      },
+    });
+
+    updateTag(`song-${did}-${rkey}`);
+    updateTag(`songs-${did}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to edit song:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Try again.",
+    };
+  }
+}
 
 export async function deleteSong(
   _prevState: { success?: boolean; error?: string } | null,
