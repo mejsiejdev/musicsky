@@ -14,7 +14,7 @@ export async function getSession(): Promise<OAuthSession | null> {
   }
 }
 
-export async function getDid(): Promise<string | null> {
+async function getDid(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get("did")?.value ?? null;
 }

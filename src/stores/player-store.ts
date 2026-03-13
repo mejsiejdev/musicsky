@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export interface PlayerSong {
+interface PlayerSong {
   uri: string;
   cid?: string;
   rkey: string;

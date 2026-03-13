@@ -10,6 +10,8 @@ dependencies:
 steps:
   - name: install dependencies
     command: npm ci
+  - name: knip
+    command: npm run knip
   - name: typecheck
     command: npm run typecheck
   - name: lint

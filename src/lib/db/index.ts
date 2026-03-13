@@ -17,7 +17,7 @@ export const getDb = (): Kysely<DatabaseSchema> => {
   return _db;
 };
 
-export interface DatabaseSchema {
+interface DatabaseSchema {
   auth_state: AuthStateTable;
   auth_session: AuthSessionTable;
 }

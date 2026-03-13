@@ -3,7 +3,7 @@ import { IdResolver } from "@atproto/identity";
 import type { OAuthSession } from "@atproto/oauth-client-node";
 import type { SongProps, TrackRecord } from "@/types/song";
 
-export function getRkey(uri: string) {
+function getRkey(uri: string) {
   return uri.split("/")[4]!;
 }
 
