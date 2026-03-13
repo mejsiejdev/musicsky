@@ -17,6 +17,9 @@ import { SongMenu } from "./song-menu";
 import type { SongProps } from "@/types/song";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { formatDistanceToNow, format } from "date-fns";
 
 export function Song({
   uri,
@@ -27,17 +30,19 @@ export function Song({
   audio,
   genre,
   duration,
-  description,
   author,
   isOwner,
   likeRkey,
   repostRkey,
+  createdAt,
 }: SongProps) {
   const shareUrl = `${PUBLIC_URL}/${author}/${rkey}`;
   const [, startTransition] = useTransition();
   const currentSong = usePlayerStore((song) => song.currentSong);
   const isPlaying = usePlayerStore((song) => song.isPlaying);
   const isCurrentSong = currentSong?.rkey === rkey;
+
+  const createdAtDate = new Date(createdAt);
 
   function handlePlay() {
     if (isCurrentSong && isPlaying) {
@@ -72,8 +77,6 @@ export function Song({
   const [optimisticReposted, setOptimisticReposted] = useOptimistic(
     repostRkey !== null,
   );
-
-  const formattedDuration = `${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, "0")}`;
 
   function handleLike() {
     startTransition(async () => {
@@ -112,31 +115,53 @@ export function Song({
             width={100}
             height={100}
           />
-          <div className="flex flex-col">
-            <Button className="px-0 text-foreground" variant="link" asChild>
+          <div className="flex flex-col gap-1 h-full justify-between">
+            <div className="flex flex-col gap-1">
               <Link
                 href={`/${author}/${rkey}`}
-                className="text-xl font-semibold"
+                className="text-xl px-0 font-semibold hover:underline"
               >
                 {title}
               </Link>
-            </Button>
-            {genre && <h3>{genre}</h3>}
-            {description && <p>{description}</p>}
-            <p>{formattedDuration}</p>
+              <Link
+                href={`/${author}`}
+                className="text-sm text-muted-foreground hover:underline"
+              >
+                @{author}
+              </Link>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              {genre && <Badge variant={"outline"}>{genre}</Badge>}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <time
+                    dateTime={createdAt}
+                    className="text-xs text-muted-foreground"
+                  >
+                    {formatDistanceToNow(createdAtDate, {
+                      addSuffix: true,
+                    })}
+                  </time>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {format(createdAtDate, "PPP p")}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
         <Button
           onClick={handlePlay}
           variant={"outline"}
+          size="icon"
+          className="rounded-full"
           aria-label={isCurrentSong && isPlaying ? "Pause" : "Play"}
         >
           {isCurrentSong && isPlaying ? (
-            <PauseIcon size={18} />
+            <PauseIcon className="h-[1.2rem] w-[1.2rem] scale-100" />
           ) : (
-            <PlayIcon size={18} />
+            <PlayIcon className="h-[1.2rem] w-[1.2rem] scale-100" />
           )}
-          {isCurrentSong && isPlaying ? "Now Playing" : "Play"}
         </Button>
       </div>
       <div className="flex flex-row items-center justify-between">

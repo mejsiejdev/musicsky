@@ -24,4 +24,5 @@ export interface SongProps {
   isOwner: boolean;
   likeRkey: string | null;
   repostRkey: string | null;
+  createdAt: string;
 }

@@ -1,3 +1,4 @@
+import { TID } from "@atproto/common-web";
 import { Agent } from "@atproto/api";
 import { IdResolver } from "@atproto/identity";
 import type { OAuthSession } from "@atproto/oauth-client-node";
@@ -26,6 +27,9 @@ export function mapRecordToSong(
     duration: value.duration,
     description: value.description ?? null,
     author: handle,
+    createdAt: new Date(
+      TID.fromStr(getRkey(uri)).timestamp() / 1000,
+    ).toISOString(),
   };
 }
 
