@@ -16,7 +16,7 @@ import { Textarea } from "../ui/textarea";
 import { Field, FieldLabel, FieldError } from "../ui/field";
 import { Loader2Icon, PencilIcon } from "lucide-react";
 import { editSong } from "@/components/song/actions";
-import { startTransition, useActionState, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editSongSchema, type EditSongFormData } from "./edit-schema";
@@ -38,6 +38,7 @@ export function EditDialog({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<EditSongFormData>({
     resolver: zodResolver(editSongSchema),
     defaultValues: {
@@ -46,6 +47,16 @@ export function EditDialog({
       genre: genre ?? undefined,
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        title,
+        description: description ?? undefined,
+        genre: genre ?? undefined,
+      });
+    }
+  }, [open, reset, title, description, genre]);
 
   const [state, action, pending] = useActionState(
     async (
