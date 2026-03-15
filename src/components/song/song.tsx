@@ -29,6 +29,7 @@ export function Song({
   coverArt,
   audio,
   genre,
+  description,
   duration,
   author,
   isOwner,
