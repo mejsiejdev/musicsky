@@ -7,6 +7,7 @@ dependencies:
   nixpkgs:
     - nodejs
     - pnpm
+    - gnused
 
 steps:
   - name: install dependencies
