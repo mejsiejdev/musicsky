@@ -18,26 +18,26 @@ MusicSky is a social music platform built on the [AT Protocol](https://atproto.c
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start the dev server
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Scripts
 
-| Script              | Description                                       |
-| ------------------- | ------------------------------------------------- |
-| `npm run dev`       | Run migrations and start the development server   |
-| `npm run build`     | Build for production                              |
-| `npm run start`     | Run migrations and start the production server    |
-| `npm run migrate`   | Run database migrations                           |
-| `npm run gen-key`   | Generate a private key for production deployments |
-| `npm run typecheck` | Type-check with TypeScript                        |
-| `npm run lint`      | Lint with ESLint                                  |
-| `npm run format`    | Format with Prettier                              |
+| Script               | Description                                       |
+| -------------------- | ------------------------------------------------- |
+| `pnpm run dev`       | Run migrations and start the development server   |
+| `pnpm run build`     | Build for production                              |
+| `pnpm run start`     | Run migrations and start the production server    |
+| `pnpm run migrate`   | Run database migrations                           |
+| `pnpm run gen-key`   | Generate a private key for production deployments |
+| `pnpm run typecheck` | Type-check with TypeScript                        |
+| `pnpm run lint`      | Lint with ESLint                                  |
+| `pnpm run format`    | Format with Prettier                              |
 
 ## Contributing
 

@@ -14,10 +14,10 @@ git clone https://tangled.org/mejsiejdev.bsky.social/musicsky.git
 cd musicsky
 
 # 2. Install dependencies
-npm install
+pnpm install
 
 # 3. Start the development server
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -57,8 +57,8 @@ chore: upgrade Next.js to 16.3
 Before opening a PR, make sure the following pass locally:
 
 ```bash
-npm run typecheck   # TypeScript type checking
-npm run lint        # ESLint + Prettier formatting check
+pnpm run typecheck   # TypeScript type checking
+pnpm run lint        # ESLint + Prettier formatting check
 ```
 
 A good PR:

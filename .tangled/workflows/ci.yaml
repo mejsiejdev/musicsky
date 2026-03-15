@@ -6,15 +6,16 @@ when:
 dependencies:
   nixpkgs:
     - nodejs
+    - pnpm
 
 steps:
   - name: install dependencies
-    command: npm ci
+    command: pnpm install --frozen-lockfile
   - name: knip
-    command: npm run knip
+    command: pnpm run knip
   - name: typecheck
-    command: npm run typecheck
+    command: pnpm run typecheck
   - name: lint
-    command: npm run lint
+    command: pnpm run lint
   - name: build
-    command: npm run build
+    command: pnpm run build
