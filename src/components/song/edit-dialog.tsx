@@ -76,8 +76,8 @@ export function EditDialog({
     const formData = new FormData();
     formData.set("rkey", rkey);
     formData.set("title", data.title);
-    if (data.description) formData.set("description", data.description);
-    if (data.genre) formData.set("genre", data.genre);
+    formData.set("description", data.description ?? "");
+    formData.set("genre", data.genre ?? "");
     startTransition(() => {
       action(formData);
     });

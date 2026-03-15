@@ -14,9 +14,8 @@ export async function editSong(
   const rkey = formData.get("rkey") as string;
   const raw = {
     title: formData.get("title") as string,
-
-    description: (formData.get("description") as string) || undefined,
-    genre: (formData.get("genre") as string) || undefined,
+    description: (formData.get("description") as string) ?? undefined,
+    genre: (formData.get("genre") as string) ?? undefined,
   };
 
   const parsed = editSongSchema.safeParse(raw);
@@ -46,13 +45,10 @@ export async function editSong(
       collection: "app.musicsky.temp.song",
       rkey,
       record: {
+        ...existingValue,
         title: parsed.data.title,
-        slug: existingValue.slug,
-        description: parsed.data.description,
-        genre: parsed.data.genre,
-        audio: existingValue.audio,
-        coverArt: existingValue.coverArt,
-        duration: existingValue.duration,
+        description: parsed.data.description || undefined,
+        genre: parsed.data.genre || undefined,
       },
     });
 
