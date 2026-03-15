@@ -15,12 +15,14 @@ export function SongMenu({
   title,
   description,
   genre,
+  coverArt,
 }: {
   isOwner: boolean;
   rkey: string;
   title: string;
   description: string | null;
   genre: string | null;
+  coverArt: string;
 }) {
   /**
    * the menu for now does not have non-owner actions,
@@ -42,6 +44,7 @@ export function SongMenu({
               title={title}
               description={description}
               genre={genre}
+              coverArt={coverArt}
             />
             <DeleteDialog rkey={rkey} />
           </>

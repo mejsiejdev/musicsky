@@ -200,6 +200,7 @@ export function Song({
             title={title}
             description={description}
             genre={genre}
+            coverArt={coverArt}
           />
         </div>
       </div>

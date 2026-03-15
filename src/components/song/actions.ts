@@ -12,10 +12,12 @@ export async function editSong(
   formData: FormData,
 ) {
   const rkey = formData.get("rkey") as string;
+  const coverArtFile = formData.get("coverArt") as File | null;
   const raw = {
     title: formData.get("title") as string,
     description: (formData.get("description") as string) ?? undefined,
     genre: (formData.get("genre") as string) ?? undefined,
+    coverArt: coverArtFile && coverArtFile.size > 0 ? coverArtFile : undefined,
   };
 
   const parsed = editSongSchema.safeParse(raw);
@@ -40,6 +42,15 @@ export async function editSong(
 
     const existingValue = existing.value as unknown as TrackRecord;
 
+    let coverArt = existingValue.coverArt;
+    if (parsed.data.coverArt) {
+      const { data: coverArtUpload } = await agent.uploadBlob(
+        parsed.data.coverArt,
+        { encoding: parsed.data.coverArt.type },
+      );
+      coverArt = coverArtUpload.blob;
+    }
+
     await agent.com.atproto.repo.putRecord({
       repo: did,
       collection: "app.musicsky.temp.song",
@@ -49,6 +60,7 @@ export async function editSong(
         title: parsed.data.title,
         description: parsed.data.description || undefined,
         genre: parsed.data.genre || undefined,
+        coverArt,
       },
     });
 
