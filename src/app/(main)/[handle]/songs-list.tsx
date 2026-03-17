@@ -56,6 +56,7 @@ export async function SongsList({
     const songProps: SongProps = {
       ...song,
       isOwner: session?.did === song.uri.split("/")[2],
+      loggedIn: session !== null,
       likeRkey: likedUris.get(song.uri) ?? null,
       repostRkey: repostedUris.get(song.uri) ?? null,
     };

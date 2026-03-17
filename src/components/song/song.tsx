@@ -33,9 +33,12 @@ export function Song({
   duration,
   author,
   isOwner,
+  loggedIn,
   likeRkey,
   repostRkey,
   createdAt,
+  playlistRkey,
+  isLastTrack,
 }: SongProps) {
   const shareUrl = `${PUBLIC_URL}/${author}/${rkey}`;
   const [, startTransition] = useTransition();
@@ -196,11 +199,16 @@ export function Song({
           <SharePopover shareUrl={shareUrl} />
           <SongMenu
             isOwner={isOwner}
+            loggedIn={loggedIn}
             rkey={rkey}
+            uri={uri}
+            cid={cid}
             title={title}
             description={description}
             genre={genre}
             coverArt={coverArt}
+            playlistRkey={playlistRkey}
+            isLastTrack={isLastTrack}
           />
         </div>
       </div>

@@ -22,7 +22,10 @@ export interface SongProps {
   description: string | null;
   author: string;
   isOwner: boolean;
+  loggedIn: boolean;
   likeRkey: string | null;
   repostRkey: string | null;
   createdAt: string;
+  playlistRkey?: string;
+  isLastTrack?: boolean;
 }

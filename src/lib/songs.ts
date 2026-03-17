@@ -4,7 +4,7 @@ import { IdResolver } from "@atproto/identity";
 import type { OAuthSession } from "@atproto/oauth-client-node";
 import type { SongProps, TrackRecord } from "@/types/song";
 
-function getRkey(uri: string) {
+export function getRkey(uri: string) {
   return uri.split("/")[4]!;
 }
 
@@ -15,7 +15,7 @@ export function mapRecordToSong(
   did: string,
   handle: string,
   cid?: string,
-): Omit<SongProps, "isOwner" | "likeRkey" | "repostRkey"> {
+): Omit<SongProps, "isOwner" | "loggedIn" | "likeRkey" | "repostRkey"> {
   return {
     uri,
     cid: cid,

@@ -21,7 +21,10 @@ interface LikeRecord {
   createdAt: string;
 }
 
-type LikedSong = Omit<SongProps, "isOwner" | "likeRkey" | "repostRkey"> & {
+type LikedSong = Omit<
+  SongProps,
+  "isOwner" | "loggedIn" | "likeRkey" | "repostRkey"
+> & {
   likedAt: string;
 };
 
@@ -158,6 +161,7 @@ export async function LikesList({
     const songProps: SongProps = {
       ...song,
       isOwner: session?.did === song.uri.split("/")[2],
+      loggedIn: session !== null,
       likeRkey: likedUris.get(song.uri) ?? null,
       repostRkey: repostedUris.get(song.uri) ?? null,
     };

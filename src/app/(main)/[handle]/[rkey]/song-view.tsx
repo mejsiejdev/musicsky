@@ -63,6 +63,7 @@ export async function SongView({
     <Song
       {...song}
       isOwner={isOwner}
+      loggedIn={session !== null}
       likeRkey={likedUris.get(song.uri) ?? null}
       repostRkey={repostedUris.get(song.uri) ?? null}
     />

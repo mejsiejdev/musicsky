@@ -8,12 +8,14 @@ import { usePathname } from "next/navigation";
 export function PagerLink({
   href,
   children,
+  exact = false,
 }: {
   href: string;
   children: React.ReactNode;
+  exact?: boolean;
 }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = exact ? pathname === href : pathname.startsWith(href);
   return (
     <Button
       variant={isActive ? "secondary" : "ghost"}

@@ -1,4 +1,4 @@
-import { HeartIcon, MusicIcon } from "lucide-react";
+import { HeartIcon, ListMusicIcon, MusicIcon } from "lucide-react";
 import { PagerLink } from "./pager-link";
 
 export async function Pager({
@@ -9,8 +9,11 @@ export async function Pager({
   const { handle } = await params;
   return (
     <div className="flex flex-row gap-4">
-      <PagerLink href={`/${handle}`}>
+      <PagerLink href={`/${handle}`} exact>
         <MusicIcon /> Songs
+      </PagerLink>
+      <PagerLink href={`/${handle}/playlists`}>
+        <ListMusicIcon /> Playlists
       </PagerLink>
       <PagerLink href={`/${handle}/likes`}>
         <HeartIcon /> Likes
