@@ -10,6 +10,7 @@ import {
   getUserInteractions,
   mapRecordToSong,
 } from "@/lib/songs";
+import { COLLECTIONS, isResourceOwner } from "@/lib/atproto";
 
 async function getSongs(pds: string, did: string, handle: string) {
   "use cache";
@@ -19,7 +20,7 @@ async function getSongs(pds: string, did: string, handle: string) {
 
     const { data } = await agent.com.atproto.repo.listRecords({
       repo: did,
-      collection: "app.musicsky.temp.song",
+      collection: COLLECTIONS.song,
       limit: 50,
     });
     return data.records.map((record) => {
@@ -55,7 +56,7 @@ export async function SongsList({
   return songs.map((song) => {
     const songProps: SongProps = {
       ...song,
-      isOwner: session?.did === song.uri.split("/")[2],
+      isOwner: isResourceOwner(session?.did, song.uri),
       loggedIn: session !== null,
       likeRkey: likedUris.get(song.uri) ?? null,
       repostRkey: repostedUris.get(song.uri) ?? null,

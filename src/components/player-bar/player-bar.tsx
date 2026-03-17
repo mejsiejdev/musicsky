@@ -1,19 +1,8 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useOptimistic,
-  useTransition,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "@/stores/player-store";
-import {
-  likeAction,
-  unlikeAction,
-  repostAction,
-  unrepostAction,
-} from "@/components/song/interaction-actions";
+import { useInteraction } from "@/hooks/use-interaction";
 import { SongInfo } from "./song-info";
 import { PlayerControls } from "./player-controls";
 import { ProgressBar } from "./progress-bar";
@@ -24,19 +13,18 @@ export function PlayerBar() {
   const pause = usePlayerStore((store) => store.pause);
   const resume = usePlayerStore((store) => store.resume);
   const stop = usePlayerStore((store) => store.stop);
-  const setLikeRkey = usePlayerStore((store) => store.setLikeRkey);
-  const setRepostRkey = usePlayerStore((store) => store.setRepostRkey);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [, startTransition] = useTransition();
   const [currentTime, setCurrentTime] = useState(0);
 
-  const [optimisticLiked, setOptimisticLiked] = useOptimistic(
-    !!currentSong?.likeRkey,
-  );
-  const [optimisticReposted, setOptimisticReposted] = useOptimistic(
-    !!currentSong?.repostRkey,
-  );
+  const { optimisticLiked, optimisticReposted, handleLike, handleRepost } =
+    useInteraction({
+      uri: currentSong?.uri ?? "",
+      cid: currentSong?.cid,
+      author: currentSong?.author ?? "",
+      likeRkey: currentSong?.likeRkey ?? null,
+      repostRkey: currentSong?.repostRkey ?? null,
+    });
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -59,50 +47,6 @@ export function PlayerBar() {
   }, [currentSong?.audio]);
 
   if (!currentSong) return null;
-
-  function handleLike() {
-    if (!currentSong) return;
-    startTransition(async () => {
-      if (optimisticLiked) {
-        setOptimisticLiked(false);
-        if (currentSong.likeRkey) {
-          await unlikeAction(currentSong.likeRkey, currentSong.author);
-          setLikeRkey(null);
-        }
-      } else {
-        if (!currentSong.cid) return;
-        setOptimisticLiked(true);
-        const newRkey = await likeAction(
-          currentSong.uri,
-          currentSong.cid,
-          currentSong.author,
-        );
-        setLikeRkey(newRkey ?? null);
-      }
-    });
-  }
-
-  function handleRepost() {
-    if (!currentSong) return;
-    startTransition(async () => {
-      if (optimisticReposted) {
-        setOptimisticReposted(false);
-        if (currentSong.repostRkey) {
-          await unrepostAction(currentSong.repostRkey, currentSong.author);
-          setRepostRkey(null);
-        }
-      } else {
-        if (!currentSong.cid) return;
-        setOptimisticReposted(true);
-        const newRkey = await repostAction(
-          currentSong.uri,
-          currentSong.cid,
-          currentSong.author,
-        );
-        setRepostRkey(newRkey ?? null);
-      }
-    });
-  }
 
   function handleSeek(time: number) {
     setCurrentTime(time);

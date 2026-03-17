@@ -11,6 +11,12 @@ import {
   getUserInteractions,
   mapRecordToSong,
 } from "@/lib/songs";
+import {
+  getDidFromUri,
+  getRkeyFromUri,
+  isResourceOwner,
+  COLLECTIONS,
+} from "@/lib/atproto";
 import { HeartCrackIcon } from "lucide-react";
 
 interface LikeRecord {
@@ -39,26 +45,23 @@ async function getLikedSongs(
 
     const { data } = await agent.com.atproto.repo.listRecords({
       repo: profileDid,
-      collection: "app.musicsky.temp.like",
+      collection: COLLECTIONS.like,
       limit: 50,
     });
 
-    // Group likes by author DID to deduplicate PDS/handle resolution
     const likesByAuthor = new Map<
       string,
       { rkey: string; createdAt: string }[]
     >();
     for (const record of data.records) {
       const like = record.value as unknown as LikeRecord;
-      const parts = like.subject.uri.split("/");
-      const authorDid = parts[2]!;
-      const rkey = parts[4]!;
+      const authorDid = getDidFromUri(like.subject.uri);
+      const rkey = getRkeyFromUri(like.subject.uri);
       const existing = likesByAuthor.get(authorDid) ?? [];
       existing.push({ rkey, createdAt: like.createdAt });
       likesByAuthor.set(authorDid, existing);
     }
 
-    // Resolve each author once, then fetch their songs in parallel
     const songResults = await Promise.all(
       [...likesByAuthor.entries()].map(async ([authorDid, likes]) => {
         try {
@@ -72,7 +75,7 @@ async function getLikedSongs(
               return songAgent.com.atproto.repo
                 .getRecord({
                   repo: authorDid,
-                  collection: "app.musicsky.temp.song",
+                  collection: COLLECTIONS.song,
                   rkey,
                 })
                 .then(({ data: songData }) => ({
@@ -82,7 +85,7 @@ async function getLikedSongs(
                 .catch((error) => {
                   console.error(
                     "Failed to fetch liked song",
-                    `at://${authorDid}/app.musicsky.temp.song/${rkey}`,
+                    `at://${authorDid}/${COLLECTIONS.song}/${rkey}`,
                     error,
                   );
                   return { songData: null, success: false as const };
@@ -160,7 +163,7 @@ export async function LikesList({
   return songs.map((song) => {
     const songProps: SongProps = {
       ...song,
-      isOwner: session?.did === song.uri.split("/")[2],
+      isOwner: isResourceOwner(session?.did, song.uri),
       loggedIn: session !== null,
       likeRkey: likedUris.get(song.uri) ?? null,
       repostRkey: repostedUris.get(song.uri) ?? null,

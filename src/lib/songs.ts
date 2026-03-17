@@ -3,10 +3,10 @@ import { Agent } from "@atproto/api";
 import { IdResolver } from "@atproto/identity";
 import type { OAuthSession } from "@atproto/oauth-client-node";
 import type { SongProps, TrackRecord } from "@/types/song";
+import { getRkeyFromUri, buildBlobUrl, COLLECTIONS } from "@/lib/atproto";
 
-export function getRkey(uri: string) {
-  return uri.split("/")[4]!;
-}
+/** @deprecated Use `getRkeyFromUri` from `@/lib/atproto` instead */
+export const getRkey = getRkeyFromUri;
 
 export function mapRecordToSong(
   uri: string,
@@ -16,20 +16,19 @@ export function mapRecordToSong(
   handle: string,
   cid?: string,
 ): Omit<SongProps, "isOwner" | "loggedIn" | "likeRkey" | "repostRkey"> {
+  const rkey = getRkeyFromUri(uri);
   return {
     uri,
     cid: cid,
-    rkey: getRkey(uri),
+    rkey,
     title: value.title,
-    coverArt: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.coverArt.ref.toString()}`,
-    audio: `${pds}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${value.audio.ref.toString()}`,
+    coverArt: buildBlobUrl(pds, did, value.coverArt.ref),
+    audio: buildBlobUrl(pds, did, value.audio.ref),
     genre: value.genre ?? null,
     duration: value.duration,
     description: value.description ?? null,
     author: handle,
-    createdAt: new Date(
-      TID.fromStr(getRkey(uri)).timestamp() / 1000,
-    ).toISOString(),
+    createdAt: new Date(TID.fromStr(rkey).timestamp() / 1000).toISOString(),
   };
 }
 
@@ -84,24 +83,24 @@ export async function getUserInteractions(session: OAuthSession | null) {
   const [likesRes, repostsRes] = await Promise.all([
     agent.com.atproto.repo.listRecords({
       repo: session.did,
-      collection: "app.musicsky.temp.like",
+      collection: COLLECTIONS.like,
       limit: 100,
     }),
     agent.com.atproto.repo.listRecords({
       repo: session.did,
-      collection: "app.musicsky.temp.repost",
+      collection: COLLECTIONS.repost,
       limit: 100,
     }),
   ]);
   for (const record of likesRes.data.records) {
     const subjectUri = (record.value as { subject: { uri: string } }).subject
       .uri;
-    likedUris.set(subjectUri, getRkey(record.uri));
+    likedUris.set(subjectUri, getRkeyFromUri(record.uri));
   }
   for (const record of repostsRes.data.records) {
     const subjectUri = (record.value as { subject: { uri: string } }).subject
       .uri;
-    repostedUris.set(subjectUri, getRkey(record.uri));
+    repostedUris.set(subjectUri, getRkeyFromUri(record.uri));
   }
   return { likedUris, repostedUris };
 }

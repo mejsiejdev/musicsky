@@ -12,6 +12,7 @@ import { DeleteDialog } from "./delete-dialog";
 import { EditDialog } from "./edit-dialog";
 import { AddToPlaylistDialog } from "@/components/playlist/add-to-playlist-dialog";
 import { removeTrackFromPlaylist } from "@/components/playlist/actions";
+import type { ActionResult } from "@/lib/action-result";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -45,12 +46,9 @@ export function SongMenu({
   isLastTrack?: boolean;
 }) {
   const [, removeAction, _removePending] = useActionState(
-    async (
-      prevState: { success?: boolean; error?: string } | null,
-      formData: FormData,
-    ) => {
+    async (prevState: ActionResult | null, formData: FormData) => {
       const result = await removeTrackFromPlaylist(prevState, formData);
-      if (result?.error) {
+      if (!result.success) {
         toast.error(result.error);
       } else {
         toast.success("Removed from playlist");

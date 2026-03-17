@@ -17,13 +17,9 @@ import { Field, FieldLabel, FieldError, FieldDescription } from "../ui/field";
 import { Loader2Icon, PencilIcon } from "lucide-react";
 import Image from "next/image";
 import { editSong } from "@/components/song/actions";
-import {
-  startTransition,
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import type { ActionResult } from "@/lib/action-result";
+import { startTransition, useActionState, useEffect, useState } from "react";
+import { useCoverArtPreview } from "@/hooks/use-cover-art-preview";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editSongSchema, type EditSongFormData } from "./edit-schema";
@@ -58,23 +54,8 @@ export function EditDialog({
     },
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState(coverArt);
-
-  const previewUrlRef = useRef(previewUrl);
-
-  useEffect(() => {
-    previewUrlRef.current = previewUrl;
-  }, [previewUrl]);
-
-  useEffect(
-    () => () => {
-      if (previewUrlRef.current !== coverArt) {
-        URL.revokeObjectURL(previewUrlRef.current);
-      }
-    },
-    [coverArt],
-  );
+  const { fileInputRef, previewUrl, onFileChange, resetPreview } =
+    useCoverArtPreview(coverArt);
 
   useEffect(() => {
     if (open) {
@@ -87,10 +68,7 @@ export function EditDialog({
   }, [open, reset, title, description, genre]);
 
   const [state, action, pending] = useActionState(
-    async (
-      prevState: { success?: boolean; error?: string } | null,
-      formData: FormData,
-    ) => {
+    async (prevState: ActionResult | null, formData: FormData) => {
       const result = await editSong(prevState, formData);
       if (result.success) {
         setOpen(false);
@@ -120,10 +98,7 @@ export function EditDialog({
       onOpenChange={(value) => {
         setOpen(value);
         if (!value) {
-          setPreviewUrl((prev) => {
-            if (prev !== coverArt) URL.revokeObjectURL(prev);
-            return coverArt;
-          });
+          resetPreview();
           setValue("coverArt", undefined);
         }
       }}
@@ -138,7 +113,7 @@ export function EditDialog({
         <DialogHeader>
           <DialogTitle>Edit song</DialogTitle>
         </DialogHeader>
-        {state?.error && (
+        {state && !state.success && (
           <p className="text-sm text-destructive">{state.error}</p>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -152,7 +127,7 @@ export function EditDialog({
               className="group relative aspect-square max-w-48 overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <Image
-                src={previewUrl}
+                src={previewUrl ?? coverArt}
                 alt="Current cover art"
                 className="size-full object-cover"
                 width={500}
@@ -173,10 +148,7 @@ export function EditDialog({
                 const file = event.target.files?.[0];
                 if (file) {
                   setValue("coverArt", file, { shouldValidate: true });
-                  setPreviewUrl((prev) => {
-                    if (prev !== coverArt) URL.revokeObjectURL(prev);
-                    return URL.createObjectURL(file);
-                  });
+                  onFileChange(file);
                 }
               }}
             />

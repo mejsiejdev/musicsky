@@ -1,16 +1,17 @@
 "use server";
 
-import { getSession } from "@/lib/auth/session";
-import { redirect } from "next/navigation";
 import { Agent } from "@atproto/api";
 import { updateTag } from "next/cache";
 import { editSongSchema } from "./edit-schema";
 import type { TrackRecord } from "@/types/song";
+import { COLLECTIONS } from "@/lib/atproto";
+import { type ActionResult, ok, fail } from "@/lib/action-result";
+import { requireSession } from "@/lib/repo";
 
 export async function editSong(
-  _prevState: { success?: boolean; error?: string } | null,
+  _prevState: ActionResult | null,
   formData: FormData,
-) {
+): Promise<ActionResult> {
   const rkey = formData.get("rkey") as string;
   const coverArtFile = formData.get("coverArt") as File | null;
   const raw = {
@@ -22,21 +23,17 @@ export async function editSong(
 
   const parsed = editSongSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return fail(new Error(parsed.error.issues[0]?.message ?? "Invalid input."));
   }
 
-  const session = await getSession();
-  if (!session) {
-    redirect("/auth/login");
-  }
-
+  const session = await requireSession();
   const agent = new Agent(session);
   const did = agent.assertDid;
 
   try {
     const { data: existing } = await agent.com.atproto.repo.getRecord({
       repo: did,
-      collection: "app.musicsky.temp.song",
+      collection: COLLECTIONS.song,
       rkey,
     });
 
@@ -53,7 +50,7 @@ export async function editSong(
 
     await agent.com.atproto.repo.putRecord({
       repo: did,
-      collection: "app.musicsky.temp.song",
+      collection: COLLECTIONS.song,
       rkey,
       record: {
         ...existingValue,
@@ -66,43 +63,30 @@ export async function editSong(
 
     updateTag(`song-${did}-${rkey}`);
     updateTag(`songs-${did}`);
-    return { success: true };
+    return ok();
   } catch (error) {
     console.error("Failed to edit song:", error);
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Try again.",
-    };
+    return fail(error);
   }
 }
 
 export async function deleteSong(
-  _prevState: { success?: boolean; error?: string } | null,
+  _prevState: ActionResult | null,
   formData: FormData,
-) {
+): Promise<ActionResult> {
   const rkey = formData.get("rkey") as string;
-  const session = await getSession();
-  if (!session) {
-    redirect("/auth/login");
-  }
+  const session = await requireSession();
   const agent = new Agent(session);
   try {
     await agent.com.atproto.repo.deleteRecord({
       repo: agent.assertDid,
-      collection: "app.musicsky.temp.song",
+      collection: COLLECTIONS.song,
       rkey,
     });
     updateTag(`songs-${agent.assertDid}`);
-    return { success: true };
+    return ok();
   } catch (error) {
     console.error("Failed to delete song:", error);
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Try again.",
-    };
+    return fail(error);
   }
 }

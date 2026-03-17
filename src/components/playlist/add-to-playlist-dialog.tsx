@@ -17,6 +17,7 @@ import {
   createPlaylist,
   getUserPlaylistsAction,
 } from "./actions";
+import type { ActionResult } from "@/lib/action-result";
 import { toast } from "sonner";
 
 export function AddToPlaylistDialog({
@@ -50,15 +51,12 @@ export function AddToPlaylistDialog({
   }, []);
 
   const [, addAction, addPending] = useActionState(
-    async (
-      prevState: { success?: boolean; error?: string } | null,
-      formData: FormData,
-    ) => {
+    async (prevState: ActionResult | null, formData: FormData) => {
       const result = await addTrackToPlaylist(prevState, formData);
       if (result.success) {
         toast.success("Added to playlist");
         setOpen(false);
-      } else if (result.error) {
+      } else {
         setError(result.error);
       }
       return result;
@@ -68,18 +66,14 @@ export function AddToPlaylistDialog({
 
   const [, createAction, createPending] = useActionState(
     async (
-      prevState: {
-        success?: boolean;
-        error?: string;
-        rkey?: string;
-      } | null,
+      prevState: ActionResult<{ rkey: string; handle: string }> | null,
       formData: FormData,
     ) => {
       const result = await createPlaylist(prevState, formData);
       if (result.success) {
         toast.success("Playlist created");
         setOpen(false);
-      } else if (result.error) {
+      } else {
         setError(result.error);
       }
       return result;

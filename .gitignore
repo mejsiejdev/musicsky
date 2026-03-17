@@ -45,3 +45,4 @@ app.db*
 
 # claude
 .claude/settings.local.json
+.claude/worktrees/*

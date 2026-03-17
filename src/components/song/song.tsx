@@ -2,14 +2,8 @@
 
 import Image from "next/image";
 import { RepeatIcon, HeartIcon, PlayIcon, PauseIcon } from "lucide-react";
-import { useOptimistic, useTransition, useEffect } from "react";
 import { usePlayerStore } from "@/stores/player-store";
-import {
-  likeAction,
-  unlikeAction,
-  repostAction,
-  unrepostAction,
-} from "./interaction-actions";
+import { useInteraction } from "@/hooks/use-interaction";
 import { cn } from "@/lib/utils";
 import { PUBLIC_URL } from "@/lib/api";
 import { SharePopover } from "./share-popover";
@@ -41,10 +35,12 @@ export function Song({
   isLastTrack,
 }: SongProps) {
   const shareUrl = `${PUBLIC_URL}/${author}/${rkey}`;
-  const [, startTransition] = useTransition();
   const currentSong = usePlayerStore((song) => song.currentSong);
   const isPlaying = usePlayerStore((song) => song.isPlaying);
   const isCurrentSong = currentSong?.rkey === rkey;
+
+  const { optimisticLiked, optimisticReposted, handleLike, handleRepost } =
+    useInteraction({ uri, cid, author, likeRkey, repostRkey });
 
   const createdAtDate = new Date(createdAt);
 
@@ -67,45 +63,6 @@ export function Song({
         repostRkey,
       });
     }
-  }
-
-  useEffect(() => {
-    if (isCurrentSong) {
-      usePlayerStore.getState().setLikeRkey(likeRkey);
-      usePlayerStore.getState().setRepostRkey(repostRkey);
-    }
-  }, [isCurrentSong, likeRkey, repostRkey]);
-  const [optimisticLiked, setOptimisticLiked] = useOptimistic(
-    likeRkey !== null,
-  );
-  const [optimisticReposted, setOptimisticReposted] = useOptimistic(
-    repostRkey !== null,
-  );
-
-  function handleLike() {
-    startTransition(async () => {
-      if (optimisticLiked) {
-        setOptimisticLiked(false);
-        if (likeRkey) await unlikeAction(likeRkey, author);
-      } else {
-        if (!cid) return;
-        setOptimisticLiked(true);
-        await likeAction(uri, cid, author);
-      }
-    });
-  }
-
-  function handleRepost() {
-    startTransition(async () => {
-      if (optimisticReposted) {
-        setOptimisticReposted(false);
-        if (repostRkey) await unrepostAction(repostRkey, author);
-      } else {
-        if (!cid) return;
-        setOptimisticReposted(true);
-        await repostAction(uri, cid, author);
-      }
-    });
   }
 
   return (

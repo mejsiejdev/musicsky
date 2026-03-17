@@ -3,6 +3,7 @@
 import { Agent } from "@atproto/api";
 import { getSession } from "@/lib/auth/session";
 import { revalidatePath, updateTag } from "next/cache";
+import { getRkeyFromUri, COLLECTIONS } from "@/lib/atproto";
 
 export async function likeAction(uri: string, cid: string, handle: string) {
   const session = await getSession();
@@ -11,16 +12,16 @@ export async function likeAction(uri: string, cid: string, handle: string) {
   const agent = new Agent(session);
   const result = await agent.com.atproto.repo.createRecord({
     repo: agent.assertDid,
-    collection: "app.musicsky.temp.like",
+    collection: COLLECTIONS.like,
     record: {
-      $type: "app.musicsky.temp.like",
+      $type: COLLECTIONS.like,
       subject: { uri, cid },
       createdAt: new Date().toISOString(),
     },
   });
   revalidatePath(`/${handle}`);
   updateTag(`likes-${agent.assertDid}`);
-  return result.data.uri.split("/").at(-1);
+  return getRkeyFromUri(result.data.uri);
 }
 
 export async function unlikeAction(rkey: string, handle: string) {
@@ -30,7 +31,7 @@ export async function unlikeAction(rkey: string, handle: string) {
   const agent = new Agent(session);
   await agent.com.atproto.repo.deleteRecord({
     repo: agent.assertDid,
-    collection: "app.musicsky.temp.like",
+    collection: COLLECTIONS.like,
     rkey,
   });
   revalidatePath(`/${handle}`);
@@ -44,15 +45,15 @@ export async function repostAction(uri: string, cid: string, handle: string) {
   const agent = new Agent(session);
   const result = await agent.com.atproto.repo.createRecord({
     repo: agent.assertDid,
-    collection: "app.musicsky.temp.repost",
+    collection: COLLECTIONS.repost,
     record: {
-      $type: "app.musicsky.temp.repost",
+      $type: COLLECTIONS.repost,
       subject: { uri, cid },
       createdAt: new Date().toISOString(),
     },
   });
   revalidatePath(`/${handle}`);
-  return result.data.uri.split("/").at(-1);
+  return getRkeyFromUri(result.data.uri);
 }
 
 export async function unrepostAction(rkey: string, handle: string) {
@@ -62,7 +63,7 @@ export async function unrepostAction(rkey: string, handle: string) {
   const agent = new Agent(session);
   await agent.com.atproto.repo.deleteRecord({
     repo: agent.assertDid,
-    collection: "app.musicsky.temp.repost",
+    collection: COLLECTIONS.repost,
     rkey,
   });
   revalidatePath(`/${handle}`);

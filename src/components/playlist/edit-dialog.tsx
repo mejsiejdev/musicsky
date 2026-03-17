@@ -17,13 +17,9 @@ import { Field, FieldLabel, FieldError, FieldDescription } from "../ui/field";
 import { Loader2Icon, PencilIcon, ListMusicIcon } from "lucide-react";
 import Image from "next/image";
 import { editPlaylist } from "./actions";
-import {
-  startTransition,
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import type { ActionResult } from "@/lib/action-result";
+import { startTransition, useActionState, useEffect, useState } from "react";
+import { useCoverArtPreview } from "@/hooks/use-cover-art-preview";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { playlistSchema, type PlaylistFormData } from "./playlist-schema";
@@ -55,23 +51,8 @@ export function EditPlaylistDialog({
     },
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState(coverArt);
-
-  const previewUrlRef = useRef(previewUrl);
-
-  useEffect(() => {
-    previewUrlRef.current = previewUrl;
-  }, [previewUrl]);
-
-  useEffect(
-    () => () => {
-      if (previewUrlRef.current && previewUrlRef.current !== coverArt) {
-        URL.revokeObjectURL(previewUrlRef.current);
-      }
-    },
-    [coverArt],
-  );
+  const { fileInputRef, previewUrl, onFileChange, resetPreview } =
+    useCoverArtPreview(coverArt);
 
   useEffect(() => {
     if (open) {
@@ -83,10 +64,7 @@ export function EditPlaylistDialog({
   }, [open, reset, name, description]);
 
   const [state, action, pending] = useActionState(
-    async (
-      prevState: { success?: boolean; error?: string } | null,
-      formData: FormData,
-    ) => {
+    async (prevState: ActionResult | null, formData: FormData) => {
       const result = await editPlaylist(prevState, formData);
       if (result.success) {
         setOpen(false);
@@ -115,10 +93,7 @@ export function EditPlaylistDialog({
       onOpenChange={(value) => {
         setOpen(value);
         if (!value) {
-          setPreviewUrl((prev) => {
-            if (prev && prev !== coverArt) URL.revokeObjectURL(prev);
-            return coverArt;
-          });
+          resetPreview();
           setValue("coverArt", undefined);
         }
       }}
@@ -133,7 +108,7 @@ export function EditPlaylistDialog({
         <DialogHeader>
           <DialogTitle>Edit playlist</DialogTitle>
         </DialogHeader>
-        {state?.error && (
+        {state && !state.success && (
           <p className="text-sm text-destructive">{state.error}</p>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -176,10 +151,7 @@ export function EditPlaylistDialog({
                 const file = event.target.files?.[0];
                 if (file) {
                   setValue("coverArt", file, { shouldValidate: true });
-                  setPreviewUrl((prev) => {
-                    if (prev && prev !== coverArt) URL.revokeObjectURL(prev);
-                    return URL.createObjectURL(file);
-                  });
+                  onFileChange(file);
                 }
               }}
             />
