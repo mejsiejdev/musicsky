@@ -2,13 +2,11 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
-import { flatConfigs as importXConfigs } from "eslint-plugin-import-x";
+import importXPlugin from "eslint-plugin-import-x";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  importXConfigs.recommended,
-  importXConfigs.typescript,
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
@@ -17,6 +15,9 @@ const eslintConfig = defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    plugins: {
+      "import-x": importXPlugin,
+    },
     rules: {
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": "error",
@@ -24,6 +25,7 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-unnecessary-condition": "error",
       "@typescript-eslint/switch-exhaustiveness-check": "error",
       "@typescript-eslint/prefer-nullish-coalescing": "error",
+      "import-x/no-cycle": "error",
     },
   },
   {
@@ -45,7 +47,7 @@ const eslintConfig = defineConfig([
       "no-var": "error",
       "prefer-const": "error",
       "no-nested-ternary": "error",
-      "import-x/no-cycle": "error",
+      "arrow-body-style": ["error", "as-needed"],
     },
   },
   globalIgnores([
@@ -56,11 +58,6 @@ const eslintConfig = defineConfig([
     "src/lib/lexicons/**",
   ]),
   eslintConfigPrettier,
-  {
-    rules: {
-      "arrow-body-style": ["error", "as-needed"],
-    },
-  },
 ]);
 
 export default eslintConfig;
