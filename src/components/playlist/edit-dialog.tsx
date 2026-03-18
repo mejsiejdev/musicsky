@@ -111,7 +111,10 @@ export function EditPlaylistDialog({
         {state && !state.success && (
           <p className="text-sm text-destructive">{state.error}</p>
         )}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+          className="space-y-4"
+        >
           <Field data-invalid={!!errors.coverArt} className="w-auto">
             <FieldLabel>Cover art</FieldLabel>
             <FieldDescription>

@@ -11,24 +11,9 @@ export async function requireSession() {
   return session;
 }
 
-export async function getRecord<T>(
-  agent: Agent,
-  collection: string,
-  did: string,
-  rkey: string,
-): Promise<{ value: T; cid: string; uri: string }> {
-  const { data } = await agent.com.atproto.repo.getRecord({
-    repo: did,
-    collection,
-    rkey,
-  });
-  return { value: data.value as unknown as T, cid: data.cid!, uri: data.uri };
-}
-
 interface ResolveByAuthorItem {
   uri: string;
   index: number;
-  extra?: Record<string, unknown>;
 }
 
 export async function resolveRecordsByAuthor(
@@ -73,7 +58,7 @@ export async function resolveRecordsByAuthor(
 
         for (let i = 0; i < authorTracks.length; i++) {
           const result = songResponses[i]!;
-          if (!result.success || !result.data) continue;
+          if (!result.success) continue;
           const value = result.data.value as unknown as TrackRecord;
           const songUri = result.data.uri;
           results[authorTracks[i]!.index] = {

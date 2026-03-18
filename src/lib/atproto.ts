@@ -1,12 +1,3 @@
-export function parseAtUri(uri: string): {
-  repo: string;
-  collection: string;
-  rkey: string;
-} {
-  const parts = uri.split("/");
-  return { repo: parts[2]!, collection: parts[3]!, rkey: parts[4]! };
-}
-
 export function getDidFromUri(uri: string): string {
   return uri.split("/")[2]!;
 }

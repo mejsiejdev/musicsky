@@ -59,7 +59,7 @@ export default function SongUploadForm() {
 
   useEffect(() => {
     if (!slugManuallyEdited.current) {
-      setValue("slug", toSlug(title ?? ""), { shouldValidate: false });
+      setValue("slug", toSlug(title), { shouldValidate: false });
     }
   }, [title, setValue]);
 
@@ -88,14 +88,17 @@ export default function SongUploadForm() {
     formData.set("duration", String(data.duration));
 
     const result = await uploadSong(formData);
-    if (result?.error) {
+    if (result.error) {
       setError("root", { message: result.error });
     }
   }
 
   return (
     <fieldset disabled={isSubmitting}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+        className="space-y-6"
+      >
         {errors.root && <FieldError>{errors.root.message}</FieldError>}
 
         <Field data-invalid={!!errors.title}>
@@ -155,7 +158,7 @@ export default function SongUploadForm() {
             id="audio"
             type="file"
             accept="audio/mpeg,audio/ogg,audio/wav,audio/flac,audio/aac,audio/webm"
-            onChange={onAudioChange}
+            onChange={(event) => void onAudioChange(event)}
           />
           <FieldError>{errors.audio?.message}</FieldError>
         </Field>

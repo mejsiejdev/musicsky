@@ -7,4 +7,4 @@ async function main() {
   console.log(JSON.stringify(key.privateJwk));
 }
 
-main();
+void main();

@@ -12,7 +12,7 @@ export function LogoutButton() {
   }
 
   return (
-    <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+    <DropdownMenuItem variant="destructive" onClick={() => void handleLogout()}>
       Log out
     </DropdownMenuItem>
   );

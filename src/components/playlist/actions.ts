@@ -8,6 +8,7 @@ import { getHandleFromDid } from "@/lib/songs";
 import { COLLECTIONS, getRkeyFromUri } from "@/lib/atproto";
 import { type ActionResult, ok, fail } from "@/lib/action-result";
 import { requireSession } from "@/lib/repo";
+import { getSession } from "@/lib/auth/session";
 
 export async function createPlaylist(
   _prevState: ActionResult<{ rkey: string; handle: string }> | null,
@@ -257,7 +258,6 @@ export async function removeTrackFromPlaylist(
 }
 
 export async function getUserPlaylistsAction() {
-  const { getSession } = await import("@/lib/auth/session");
   const session = await getSession();
   if (!session) return [];
   const agent = new Agent(session);

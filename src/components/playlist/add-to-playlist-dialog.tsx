@@ -43,7 +43,7 @@ export function AddToPlaylistDialog({
       setShowNewInput(false);
       setNewName("");
       setError(null);
-      getUserPlaylistsAction().then((result) => {
+      void getUserPlaylistsAction().then((result) => {
         setPlaylists(result);
         setLoading(false);
       });

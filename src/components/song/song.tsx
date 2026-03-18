@@ -1,19 +1,70 @@
 "use client";
 
 import Image from "next/image";
-import { RepeatIcon, HeartIcon, PlayIcon, PauseIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+  RepeatIcon,
+  HeartIcon,
+  PlayIcon,
+  PauseIcon,
+  ListMusicIcon,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react";
 import { usePlayerStore } from "@/stores/player-store";
 import { useInteraction } from "@/hooks/use-interaction";
 import { cn } from "@/lib/utils";
 import { PUBLIC_URL } from "@/lib/api";
 import { SharePopover } from "./share-popover";
 import { SongMenu } from "./song-menu";
+import { RemoveFromPlaylistItem } from "@/components/playlist/remove-from-playlist-item";
 import type { SongProps } from "@/types/song";
 import { Button } from "../ui/button";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { formatDistanceToNow, format } from "date-fns";
+
+const AddToPlaylistDialog = dynamic(
+  () =>
+    import("@/components/playlist/add-to-playlist-dialog").then((mod) => ({
+      default: mod.AddToPlaylistDialog,
+    })),
+  {
+    loading: () => (
+      <DropdownMenuItem disabled>
+        <ListMusicIcon />
+        Add to playlist
+      </DropdownMenuItem>
+    ),
+  },
+);
+
+const EditDialog = dynamic(
+  () => import("./edit-dialog").then((mod) => ({ default: mod.EditDialog })),
+  {
+    loading: () => (
+      <DropdownMenuItem disabled>
+        <PencilIcon />
+        Edit
+      </DropdownMenuItem>
+    ),
+  },
+);
+
+const DeleteDialog = dynamic(
+  () =>
+    import("./delete-dialog").then((mod) => ({ default: mod.DeleteDialog })),
+  {
+    loading: () => (
+      <DropdownMenuItem disabled variant="destructive">
+        <TrashIcon />
+        Delete
+      </DropdownMenuItem>
+    ),
+  },
+);
 
 export function Song({
   uri,
@@ -154,19 +205,32 @@ export function Song({
         </div>
         <div className="flex flex-row items-center gap-4">
           <SharePopover shareUrl={shareUrl} />
-          <SongMenu
-            isOwner={isOwner}
-            loggedIn={loggedIn}
-            rkey={rkey}
-            uri={uri}
-            cid={cid}
-            title={title}
-            description={description}
-            genre={genre}
-            coverArt={coverArt}
-            playlistRkey={playlistRkey}
-            isLastTrack={isLastTrack}
-          />
+          {(isOwner || (loggedIn && !!cid) || !!playlistRkey) && (
+            <SongMenu>
+              {loggedIn && cid && (
+                <AddToPlaylistDialog trackUri={uri} trackCid={cid} />
+              )}
+              {playlistRkey && (
+                <RemoveFromPlaylistItem
+                  playlistRkey={playlistRkey}
+                  trackUri={uri}
+                  isLastTrack={isLastTrack}
+                />
+              )}
+              {isOwner && (
+                <>
+                  <EditDialog
+                    rkey={rkey}
+                    title={title}
+                    description={description}
+                    genre={genre}
+                    coverArt={coverArt}
+                  />
+                  <DeleteDialog rkey={rkey} />
+                </>
+              )}
+            </SongMenu>
+          )}
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ export interface TrackRecord {
   description?: string;
 }
 
-export interface SongProps {
+export interface SongData {
   uri: string;
   cid?: string;
   rkey: string;
@@ -21,11 +21,25 @@ export interface SongProps {
   duration: number;
   description: string | null;
   author: string;
-  isOwner: boolean;
-  loggedIn: boolean;
+  createdAt: string;
+}
+
+export interface SongInteraction {
   likeRkey: string | null;
   repostRkey: string | null;
-  createdAt: string;
+}
+
+export interface SongContext {
+  isOwner: boolean;
+  loggedIn: boolean;
+}
+
+export interface SongPlaylistContext {
   playlistRkey?: string;
   isLastTrack?: boolean;
 }
+
+export type SongProps = SongData &
+  SongInteraction &
+  SongContext &
+  SongPlaylistContext;

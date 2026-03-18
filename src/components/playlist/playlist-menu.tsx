@@ -1,13 +1,43 @@
 "use client";
 
-import { EllipsisIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+import { EllipsisIcon, PencilIcon, TrashIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EditPlaylistDialog } from "./edit-dialog";
-import { DeletePlaylistDialog } from "./delete-dialog";
+
+const EditPlaylistDialog = dynamic(
+  () =>
+    import("./edit-dialog").then((mod) => ({
+      default: mod.EditPlaylistDialog,
+    })),
+  {
+    loading: () => (
+      <DropdownMenuItem disabled>
+        <PencilIcon />
+        Edit
+      </DropdownMenuItem>
+    ),
+  },
+);
+
+const DeletePlaylistDialog = dynamic(
+  () =>
+    import("./delete-dialog").then((mod) => ({
+      default: mod.DeletePlaylistDialog,
+    })),
+  {
+    loading: () => (
+      <DropdownMenuItem disabled variant="destructive">
+        <TrashIcon />
+        Delete
+      </DropdownMenuItem>
+    ),
+  },
+);
 
 export function PlaylistMenu({
   rkey,

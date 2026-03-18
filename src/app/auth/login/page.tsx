@@ -33,7 +33,7 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error ?? "Login failed");
       }
 
       // Redirect to authorization server
@@ -56,7 +56,10 @@ export default function Login() {
         <ThemeToggle />
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          className="space-y-4"
+        >
           <Field data-invalid={!!error}>
             <FieldLabel htmlFor="handle">Handle</FieldLabel>
             <Input

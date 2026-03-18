@@ -36,7 +36,10 @@ export async function SongView({
 }) {
   const { handle, rkey } = await params;
 
-  const profileDid = await getDid(handle);
+  const [profileDid, session] = await Promise.all([
+    getDid(handle),
+    getSession(),
+  ]);
   if (!profileDid) {
     notFound();
   }
@@ -45,8 +48,6 @@ export async function SongView({
   if (!pds) {
     notFound();
   }
-
-  const session = await getSession();
 
   const [song, { likedUris, repostedUris }] = await Promise.all([
     getSong(pds, profileDid, handle, rkey),

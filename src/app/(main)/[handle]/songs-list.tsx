@@ -39,7 +39,10 @@ export async function SongsList({
   params: Promise<{ handle: string }>;
 }) {
   const { handle } = await params;
-  const profileDid = await getDid(handle);
+  const [profileDid, session] = await Promise.all([
+    getDid(handle),
+    getSession(),
+  ]);
   if (!profileDid) {
     notFound();
   }
@@ -47,7 +50,6 @@ export async function SongsList({
   if (!pds) {
     notFound();
   }
-  const session = await getSession();
   const [songs, { likedUris, repostedUris }] = await Promise.all([
     getSongs(pds, profileDid, handle),
     getUserInteractions(session),

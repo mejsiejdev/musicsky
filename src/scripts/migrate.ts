@@ -8,4 +8,4 @@ async function main() {
   console.log("Migrations complete.");
 }
 
-main();
+void main();

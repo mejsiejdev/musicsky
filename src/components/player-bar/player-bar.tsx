@@ -31,7 +31,7 @@ export function PlayerBar() {
     if (!audio) return;
 
     if (isPlaying) {
-      audio.play();
+      void audio.play();
     } else {
       audio.pause();
     }

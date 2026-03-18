@@ -35,7 +35,11 @@ export function SharePopover({ shareUrl }: { shareUrl: string }) {
             value={shareUrl}
             className="flex-1 rounded-md border px-3 py-1.5 text-sm bg-muted"
           />
-          <Button onClick={handleCopy} variant="outline" size="icon">
+          <Button
+            onClick={() => void handleCopy()}
+            variant="outline"
+            size="icon"
+          >
             {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
           </Button>
         </div>

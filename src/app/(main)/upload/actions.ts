@@ -17,27 +17,29 @@ export async function uploadSong(formData: FormData) {
   const description = (formData.get("description") as string) || undefined;
   const genre = (formData.get("genre") as string) || undefined;
   const audio = formData.get("audio") as File;
-  const coverArt = formData.get("coverArt") as File | null;
+  const coverArt = formData.get("coverArt") as File;
   const duration = Number(formData.get("duration"));
 
-  if (!audio || !title || !duration || !slug) {
+  if (!title || !slug) {
     return { error: "Missing required fields." };
   }
 
-  if (!coverArt || coverArt.size === 0) {
+  if (audio.size === 0) {
+    return { error: "Audio file is required." };
+  }
+
+  if (coverArt.size === 0) {
     return { error: "Cover art is required." };
   }
 
   try {
-    // Upload audio blob
-    const { data: audioUpload } = await agent.uploadBlob(audio, {
-      encoding: audio.type,
-    });
-
-    // Upload cover art blob
-    const { data: coverArtUpload } = await agent.uploadBlob(coverArt, {
-      encoding: coverArt.type,
-    });
+    // Upload audio and cover art blobs in parallel
+    const [{ data: audioUpload }, { data: coverArtUpload }] = await Promise.all(
+      [
+        agent.uploadBlob(audio, { encoding: audio.type }),
+        agent.uploadBlob(coverArt, { encoding: coverArt.type }),
+      ],
+    );
 
     // Create the song record
     await agent.com.atproto.repo.createRecord({

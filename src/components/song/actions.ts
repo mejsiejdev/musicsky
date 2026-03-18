@@ -16,8 +16,8 @@ export async function editSong(
   const coverArtFile = formData.get("coverArt") as File | null;
   const raw = {
     title: formData.get("title") as string,
-    description: (formData.get("description") as string) ?? undefined,
-    genre: (formData.get("genre") as string) ?? undefined,
+    description: (formData.get("description") as string) || undefined,
+    genre: (formData.get("genre") as string) || undefined,
     coverArt: coverArtFile && coverArtFile.size > 0 ? coverArtFile : undefined,
   };
 
@@ -55,8 +55,8 @@ export async function editSong(
       record: {
         ...existingValue,
         title: parsed.data.title,
-        description: parsed.data.description || undefined,
-        genre: parsed.data.genre || undefined,
+        description: parsed.data.description ?? undefined,
+        genre: parsed.data.genre ?? undefined,
         coverArt,
       },
     });

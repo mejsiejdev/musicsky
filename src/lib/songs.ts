@@ -5,9 +5,6 @@ import type { OAuthSession } from "@atproto/oauth-client-node";
 import type { SongProps, TrackRecord } from "@/types/song";
 import { getRkeyFromUri, buildBlobUrl, COLLECTIONS } from "@/lib/atproto";
 
-/** @deprecated Use `getRkeyFromUri` from `@/lib/atproto` instead */
-export const getRkey = getRkeyFromUri;
-
 export function mapRecordToSong(
   uri: string,
   value: TrackRecord,
