@@ -1,4 +1,4 @@
 {
-  "apps/web/**/*.{ts,tsx}": "eslint --fix",
+  "apps/web/**/*.{ts,tsx}": "eslint --config apps/web/eslint.config.mjs --fix",
   "*": "prettier --ignore-unknown --write"
 }

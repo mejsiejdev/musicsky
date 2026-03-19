@@ -1,5 +1,6 @@
 import { Song } from "@/components/song";
 import { type SongProps, type TrackRecord } from "@/types/song";
+import type { PlayerSong } from "@/stores/player-store";
 import { Agent } from "@atproto/api";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -18,6 +19,7 @@ import {
   COLLECTIONS,
 } from "@/lib/atproto";
 import { HeartCrackIcon } from "lucide-react";
+import { PlaylistQueueProvider } from "@/components/playlist/playlist-queue-context";
 
 interface LikeRecord {
   subject: {
@@ -162,14 +164,29 @@ export async function LikesList({
     );
   }
 
-  return songs.map((song) => {
-    const songProps: SongProps = {
-      ...song,
-      isOwner: isResourceOwner(session?.did, song.uri),
-      loggedIn: session !== null,
-      likeRkey: likedUris.get(song.uri) ?? null,
-      repostRkey: repostedUris.get(song.uri) ?? null,
-    };
-    return <Song key={song.uri} {...songProps} />;
-  });
+  const queueSongs: PlayerSong[] = songs.map((song) => ({
+    uri: song.uri,
+    cid: song.cid,
+    rkey: song.rkey,
+    title: song.title,
+    coverArt: song.coverArt,
+    audio: song.audio,
+    duration: song.duration,
+    author: song.author,
+  }));
+
+  return (
+    <PlaylistQueueProvider songs={queueSongs}>
+      {songs.map((song) => {
+        const songProps: SongProps = {
+          ...song,
+          isOwner: isResourceOwner(session?.did, song.uri),
+          loggedIn: session !== null,
+          likeRkey: likedUris.get(song.uri) ?? null,
+          repostRkey: repostedUris.get(song.uri) ?? null,
+        };
+        return <Song key={song.uri} {...songProps} />;
+      })}
+    </PlaylistQueueProvider>
+  );
 }

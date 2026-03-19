@@ -25,6 +25,7 @@ import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { formatDistanceToNow, format } from "date-fns";
+import { usePlaylistQueue } from "@/components/playlist/playlist-queue-context";
 
 const AddToPlaylistDialog = dynamic(
   () =>
@@ -93,6 +94,7 @@ export function Song({
   const { optimisticLiked, optimisticReposted, handleLike, handleRepost } =
     useInteraction({ uri, cid, author, likeRkey, repostRkey });
 
+  const queueSongs = usePlaylistQueue();
   const createdAtDate = new Date(createdAt);
 
   function handlePlay() {
@@ -101,18 +103,22 @@ export function Song({
     } else if (isCurrentSong) {
       usePlayerStore.getState().resume();
     } else {
-      usePlayerStore.getState().playSong({
-        uri,
-        cid,
-        rkey,
-        title,
-        coverArt,
-        audio,
-        duration,
-        author,
-        likeRkey,
-        repostRkey,
-      });
+      const queueIndex =
+        queueSongs?.findIndex((song) => song.uri === uri) ?? -1;
+      if (queueSongs && queueIndex !== -1) {
+        usePlayerStore.getState().playFromQueue(queueSongs, queueIndex);
+      } else {
+        usePlayerStore.getState().playSong({
+          uri,
+          cid,
+          rkey,
+          title,
+          coverArt,
+          audio,
+          duration,
+          author,
+        });
+      }
     }
   }
 
@@ -131,7 +137,10 @@ export function Song({
             <div className="flex flex-col gap-1">
               <Link
                 href={`/${author}/${rkey}`}
-                className="text-xl px-0 font-semibold hover:underline"
+                className={cn(
+                  "text-xl px-0 font-semibold hover:underline",
+                  isCurrentSong && "text-primary",
+                )}
               >
                 {title}
               </Link>

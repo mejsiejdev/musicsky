@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Song } from "@/components/song";
 import { type PlaylistProps, type PlaylistRecord } from "@/types/playlist";
+import type { PlayerSong } from "@/stores/player-store";
 import { Agent } from "@atproto/api";
 import { notFound } from "next/navigation";
 import { cacheTag } from "next/cache";
@@ -8,6 +9,7 @@ import { getSession } from "@/lib/auth/session";
 import { getDid, getPds } from "@/lib/songs";
 import { mapRecordToPlaylist, resolvePlaylistTracks } from "@/lib/playlists";
 import { PlaylistMenu } from "@/components/playlist/playlist-menu";
+import { PlaylistQueueProvider } from "@/components/playlist/playlist-queue-context";
 import { ListMusicIcon } from "lucide-react";
 
 async function getPlaylist(
@@ -70,6 +72,19 @@ export async function PlaylistView({
   const isOwner = session?.did === playlist.uri.split("/")[2];
   const resolvedTracks = await resolvePlaylistTracks(playlist.tracks, session);
 
+  const queueSongs: PlayerSong[] = resolvedTracks
+    .filter((track): track is NonNullable<typeof track> => track !== null)
+    .map((track) => ({
+      uri: track.uri,
+      cid: track.cid,
+      rkey: track.rkey,
+      title: track.title,
+      coverArt: track.coverArt,
+      audio: track.audio,
+      duration: track.duration,
+      author: track.author,
+    }));
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-row items-start justify-between gap-4">
@@ -111,33 +126,35 @@ export async function PlaylistView({
         )}
       </div>
 
-      <div className="flex flex-col gap-4">
-        {resolvedTracks.map((track, index) => {
-          if (!track) {
-            return (
-              <div
-                key={index}
-                className="flex flex-row items-center gap-4 opacity-50"
-              >
-                <div className="rounded-md size-24 bg-muted flex items-center justify-center">
-                  <ListMusicIcon className="size-6 text-muted-foreground" />
+      <PlaylistQueueProvider songs={queueSongs}>
+        <div className="flex flex-col gap-4">
+          {resolvedTracks.map((track, index) => {
+            if (!track) {
+              return (
+                <div
+                  key={index}
+                  className="flex flex-row items-center gap-4 opacity-50"
+                >
+                  <div className="rounded-md size-24 bg-muted flex items-center justify-center">
+                    <ListMusicIcon className="size-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Track unavailable
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Track unavailable
-                </p>
-              </div>
+              );
+            }
+            return (
+              <Song
+                key={track.uri}
+                {...track}
+                playlistRkey={isOwner ? rkey : undefined}
+                isLastTrack={playlist.trackCount <= 1}
+              />
             );
-          }
-          return (
-            <Song
-              key={track.uri}
-              {...track}
-              playlistRkey={isOwner ? rkey : undefined}
-              isLastTrack={playlist.trackCount <= 1}
-            />
-          );
-        })}
-      </div>
+          })}
+        </div>
+      </PlaylistQueueProvider>
     </div>
   );
 }

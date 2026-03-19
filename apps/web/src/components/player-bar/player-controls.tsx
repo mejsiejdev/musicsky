@@ -1,70 +1,64 @@
+"use client";
+
 import {
   PlayIcon,
   PauseIcon,
   XIcon,
-  HeartIcon,
-  RepeatIcon,
+  ShuffleIcon,
+  SkipBackIcon,
+  SkipForwardIcon,
 } from "lucide-react";
+import { usePlayerStore } from "@/stores/player-store";
 import { cn } from "@/lib/utils";
 
-interface PlayerControlsProps {
-  isPlaying: boolean;
-  optimisticLiked: boolean;
-  optimisticReposted: boolean;
-  canInteract: boolean;
-  onPlay: () => void;
-  onPause: () => void;
-  onStop: () => void;
-  onLike: () => void;
-  onRepost: () => void;
-}
+export function PlayerControls() {
+  const isPlaying = usePlayerStore((store) => store.isPlaying);
+  const hasQueue = usePlayerStore((store) => store.queue.length > 0);
+  const isShuffled = usePlayerStore((store) => store.isShuffled);
+  const pause = usePlayerStore((store) => store.pause);
+  const resume = usePlayerStore((store) => store.resume);
+  const stop = usePlayerStore((store) => store.stop);
+  const next = usePlayerStore((store) => store.next);
+  const previous = usePlayerStore((store) => store.previous);
+  const toggleShuffle = usePlayerStore((store) => store.toggleShuffle);
 
-export function PlayerControls({
-  isPlaying,
-  optimisticLiked,
-  optimisticReposted,
-  canInteract,
-  onPlay,
-  onPause,
-  onStop,
-  onLike,
-  onRepost,
-}: PlayerControlsProps) {
   return (
     <div className="flex items-center gap-4">
+      {hasQueue && (
+        <>
+          <button
+            onClick={toggleShuffle}
+            aria-label="Toggle shuffle"
+            className="cursor-pointer"
+          >
+            <ShuffleIcon
+              size={18}
+              className={cn(isShuffled && "text-primary")}
+            />
+          </button>
+          <button
+            onClick={previous}
+            aria-label="Previous"
+            className="cursor-pointer"
+          >
+            <SkipBackIcon size={18} />
+          </button>
+        </>
+      )}
       <button
-        onClick={onRepost}
-        aria-label="Repost"
-        disabled={!canInteract}
-        className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <RepeatIcon
-          size={18}
-          className={cn(optimisticReposted && "text-green-500")}
-          fill={optimisticReposted ? "currentColor" : "none"}
-        />
-      </button>
-      <button
-        onClick={onLike}
-        aria-label="Like"
-        disabled={!canInteract}
-        className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <HeartIcon
-          size={18}
-          className={cn(optimisticLiked && "text-red-500")}
-          fill={optimisticLiked ? "currentColor" : "none"}
-        />
-      </button>
-      <button
-        onClick={isPlaying ? onPause : onPlay}
+        onClick={isPlaying ? pause : resume}
         aria-label={isPlaying ? "Pause" : "Play"}
         className="cursor-pointer"
       >
         {isPlaying ? <PauseIcon size={22} /> : <PlayIcon size={22} />}
       </button>
+      {hasQueue && (
+        <button onClick={next} aria-label="Next" className="cursor-pointer">
+          <SkipForwardIcon size={18} />
+        </button>
+      )}
       <button
-        onClick={onStop}
+        onClick={stop}
         aria-label="Close player"
         className="cursor-pointer"
       >
