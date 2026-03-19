@@ -2,7 +2,6 @@ import { type BlobRef } from "@atproto/lexicon";
 
 export interface TrackRecord {
   title: string;
-  slug: string;
   coverArt: BlobRef;
   audio: BlobRef;
   genre?: string;

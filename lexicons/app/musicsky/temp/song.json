@@ -12,7 +12,6 @@
           "title",
           "audio",
           "coverArt",
-          "slug",
           "duration",
           "createdAt"
         ],
@@ -73,12 +72,6 @@
             "type": "integer",
             "minimum": 1,
             "description": "Duration of the track in seconds."
-          },
-          "slug": {
-            "type": "string",
-            "maxLength": 128,
-            "maxGraphemes": 128,
-            "description": "URL-friendly slug for the track."
           },
           "labels": {
             "type": "union",

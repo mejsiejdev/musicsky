@@ -13,6 +13,7 @@ import Link from "next/link";
 import { LogoutButton } from "./logout-button";
 import { EllipsisIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UploadDialog } from "@/components/song/upload-dialog";
 
 export async function AvatarSection() {
   const session = await getSession();
@@ -57,9 +58,7 @@ export async function AvatarSection() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Button asChild>
-        <Link href="/upload">Upload a song</Link>
-      </Button>
+      <UploadDialog />
     </>
   );
 }

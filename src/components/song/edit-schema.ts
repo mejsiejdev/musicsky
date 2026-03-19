@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { songSchema } from "@/app/(main)/upload/song-schema";
+import { uploadSongSchema } from "./upload-schema";
 
-export const editSongSchema = songSchema
+export const editSongSchema = uploadSongSchema
   .pick({
     title: true,
     description: true,

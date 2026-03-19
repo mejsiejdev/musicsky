@@ -14,19 +14,11 @@ const IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
 const MAX_AUDIO_SIZE = 52_428_800; // 50 MB
 const MAX_COVER_ART_SIZE = 10_000_000; // 10 MB
 
-export const songSchema = z.object({
+export const uploadSongSchema = z.object({
   title: z
     .string()
     .min(1, { error: "Title is required." })
     .max(128, { error: "Title must be 128 characters or fewer." }),
-  slug: z
-    .string()
-    .min(1, { error: "Slug is required." })
-    .max(128, { error: "Slug must be 128 characters or fewer." })
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-      error:
-        "Slug must be lowercase letters, numbers, and hyphens only, with no leading or trailing hyphens.",
-    }),
   description: z
     .string()
     .max(5000, { error: "Description must be 5000 characters or fewer." })
@@ -51,4 +43,4 @@ export const songSchema = z.object({
     .min(1, { error: "Duration must be at least 1 second." }),
 });
 
-export type SongFormData = z.infer<typeof songSchema>;
+export type UploadSongFormData = z.infer<typeof uploadSongSchema>;

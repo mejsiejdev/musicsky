@@ -31,8 +31,6 @@ export interface Main {
   coverArt: BlobRef
   /** Duration of the track in seconds. */
   duration: number
-  /** URL-friendly slug for the track. */
-  slug: string
   labels?: $Typed<ComAtprotoLabelDefs.SelfLabels> | { $type: string }
   /** Client-declared timestamp of when the track was uploaded. */
   createdAt: string
