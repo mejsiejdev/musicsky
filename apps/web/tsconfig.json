@@ -34,5 +34,5 @@
     "**/*.mts",
     "src/app/.well-known/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/lib/lexicons"]
+  "exclude": ["node_modules"]
 }

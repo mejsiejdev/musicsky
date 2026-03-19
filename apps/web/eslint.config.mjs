@@ -50,13 +50,7 @@ const eslintConfig = defineConfig([
       "arrow-body-style": ["error", "as-needed"],
     },
   },
-  globalIgnores([
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-    "src/lib/lexicons/**",
-  ]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
   eslintConfigPrettier,
 ]);
 
