@@ -65,6 +65,116 @@ export const schemaDict = {
       },
     },
   },
+  AppMusicskyTempGetFeed: {
+    lexicon: 1,
+    id: 'app.musicsky.temp.getFeed',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get a chronological feed of songs.',
+        parameters: {
+          type: 'params',
+          properties: {
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100,
+              default: 50,
+              description: 'Maximum number of results.',
+            },
+            cursor: {
+              type: 'string',
+              description: 'Pagination cursor.',
+            },
+            viewer: {
+              type: 'string',
+              description: 'DID of the viewing user for viewer state.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['songs'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              songs: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:app.musicsky.temp.getFeed#songView',
+                },
+              },
+            },
+          },
+        },
+      },
+      songView: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+          },
+          cid: {
+            type: 'string',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:app.musicsky.temp.getFeed#authorView',
+          },
+          record: {
+            type: 'unknown',
+          },
+          likeCount: {
+            type: 'integer',
+          },
+          repostCount: {
+            type: 'integer',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:app.musicsky.temp.getFeed#viewerState',
+          },
+          indexedAt: {
+            type: 'string',
+          },
+          createdAt: {
+            type: 'string',
+          },
+        },
+      },
+      authorView: {
+        type: 'object',
+        required: ['did', 'handle', 'pds'],
+        properties: {
+          did: {
+            type: 'string',
+          },
+          handle: {
+            type: 'string',
+          },
+          pds: {
+            type: 'string',
+          },
+        },
+      },
+      viewerState: {
+        type: 'object',
+        properties: {
+          like: {
+            type: 'string',
+          },
+          repost: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  },
   AppMusicskyTempLike: {
     lexicon: 1,
     id: 'app.musicsky.temp.like',
@@ -190,14 +300,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: [
-            'title',
-            'audio',
-            'coverArt',
-            'slug',
-            'duration',
-            'createdAt',
-          ],
+          required: ['title', 'audio', 'coverArt', 'duration', 'createdAt'],
           properties: {
             title: {
               type: 'string',
@@ -252,12 +355,6 @@ export const schemaDict = {
               minimum: 1,
               description: 'Duration of the track in seconds.',
             },
-            slug: {
-              type: 'string',
-              maxLength: 128,
-              maxGraphemes: 128,
-              description: 'URL-friendly slug for the track.',
-            },
             labels: {
               type: 'union',
               refs: ['lex:com.atproto.label.defs#selfLabels'],
@@ -309,6 +406,7 @@ export function validate(
 
 export const ids = {
   AppMusicskyTempComment: 'app.musicsky.temp.comment',
+  AppMusicskyTempGetFeed: 'app.musicsky.temp.getFeed',
   AppMusicskyTempLike: 'app.musicsky.temp.like',
   AppMusicskyTempPlaylist: 'app.musicsky.temp.playlist',
   AppMusicskyTempRepost: 'app.musicsky.temp.repost',

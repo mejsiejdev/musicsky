@@ -132,6 +132,10 @@ export function Song({
             alt={title}
             width={100}
             height={100}
+            unoptimized={
+              coverArt.startsWith("http://127.0.0.1") ||
+              coverArt.startsWith("http://localhost")
+            }
           />
           <div className="flex flex-col gap-1 h-full justify-between">
             <div className="flex flex-col gap-1">

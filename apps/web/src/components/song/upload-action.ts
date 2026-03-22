@@ -32,12 +32,12 @@ export async function uploadSong(
   const agent = new Agent(session);
 
   try {
-    const [{ data: audioUpload }, { data: coverArtUpload }] = await Promise.all(
-      [
-        agent.uploadBlob(audio, { encoding: audio.type }),
-        agent.uploadBlob(coverArt, { encoding: coverArt.type }),
-      ],
-    );
+    const { data: audioUpload } = await agent.uploadBlob(audio, {
+      encoding: audio.type,
+    });
+    const { data: coverArtUpload } = await agent.uploadBlob(coverArt, {
+      encoding: coverArt.type,
+    });
 
     const { data: record } = await agent.com.atproto.repo.createRecord({
       repo: agent.assertDid,

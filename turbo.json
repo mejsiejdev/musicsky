@@ -3,14 +3,28 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NEXT_PUBLIC_URL", "PRIVATE_KEY", "DATABASE_PATH"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "env": [
+        "NEXT_PUBLIC_URL",
+        "NEXT_PUBLIC_APPVIEW_URL",
+        "PRIVATE_KEY",
+        "DATABASE_PATH",
+        "TAP_URL",
+        "TAP_ADMIN_PASSWORD"
+      ],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^build"]
     },
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
     },
     "knip": {},
     "dev": {
