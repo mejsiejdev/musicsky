@@ -5,6 +5,6 @@ export {
   buildBlobUrl,
   isResourceOwner,
   COLLECTIONS,
-} from "./atproto";
+} from "./atproto.ts";
 
-export { getDid, getPds, getHandleFromDid } from "./identity";
+export { getDid, getPds, getHandleFromDid } from "./identity.ts";
