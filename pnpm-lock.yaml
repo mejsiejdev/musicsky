@@ -28,6 +28,15 @@ importers:
 
   apps/appview:
     dependencies:
+      "@atproto/api":
+        specifier: ^0.19.0
+        version: 0.19.0
+      "@atproto/common-web":
+        specifier: ^0.4.18
+        version: 0.4.19
+      "@atproto/identity":
+        specifier: ^0.4.12
+        version: 0.4.12
       "@atproto/syntax":
         specifier: ^0.3.2
         version: 0.3.4
@@ -8748,7 +8757,7 @@ snapshots:
 
   "@atproto/api@0.19.0":
     dependencies:
-      "@atproto/common-web": 0.4.18
+      "@atproto/common-web": 0.4.19
       "@atproto/lexicon": 0.6.1
       "@atproto/syntax": 0.4.3
       "@atproto/xrpc": 0.7.7
@@ -8795,7 +8804,7 @@ snapshots:
 
   "@atproto/identity@0.4.12":
     dependencies:
-      "@atproto/common-web": 0.4.18
+      "@atproto/common-web": 0.4.19
       "@atproto/crypto": 0.4.5
 
   "@atproto/jwk-jose@0.1.11":
@@ -8935,7 +8944,7 @@ snapshots:
 
   "@atproto/lexicon@0.6.1":
     dependencies:
-      "@atproto/common-web": 0.4.18
+      "@atproto/common-web": 0.4.19
       "@atproto/syntax": 0.4.3
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
@@ -8986,7 +8995,7 @@ snapshots:
   "@atproto/repo@0.8.12":
     dependencies:
       "@atproto/common": 0.5.15
-      "@atproto/common-web": 0.4.18
+      "@atproto/common-web": 0.4.19
       "@atproto/crypto": 0.4.5
       "@atproto/lexicon": 0.6.1
       "@ipld/dag-cbor": 7.0.3
@@ -11632,7 +11641,7 @@ snapshots:
       "@next/eslint-plugin-next": 16.1.7
       eslint: 9.39.3(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.3(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0(eslint@9.39.3(jiti@2.6.1)))(eslint@9.39.3(jiti@2.6.1))
       eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.3(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.3(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.3(jiti@2.6.1))
@@ -11666,7 +11675,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.3(jiti@2.6.1)):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0(eslint@9.39.3(jiti@2.6.1)))(eslint@9.39.3(jiti@2.6.1)):
     dependencies:
       "@nolyfill/is-core-module": 1.0.39
       debug: 4.4.3
@@ -11688,7 +11697,7 @@ snapshots:
     optionalDependencies:
       eslint: 9.39.3(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0)(eslint@9.39.3(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.3(jiti@2.6.1)))(eslint-plugin-import@2.32.0(eslint@9.39.3(jiti@2.6.1)))(eslint@9.39.3(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
