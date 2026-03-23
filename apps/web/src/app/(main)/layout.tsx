@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HomeIcon } from "lucide-react";
+import Image from "next/image";
 import { PlayerBar } from "@/components/player-bar";
 
 export default function MainLayout({
@@ -25,12 +26,30 @@ export default function MainLayout({
               Listen and share the music in the Atmosphere.
             </h2>
           </div>
-          <Button asChild variant="ghost" className="justify-start">
-            <Link href="/">
-              <HomeIcon />
-              Home
-            </Link>
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button asChild variant="ghost" className="justify-start">
+              <Link href="/">
+                <HomeIcon />
+                Home
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" className="justify-start px-3">
+              <a
+                href="https://tangled.org/mejsiejdev.bsky.social/musicsky"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  src="/tangled-dolly.png"
+                  alt="Tangled Dolly"
+                  width={16}
+                  height={16}
+                  className="dark:invert"
+                />
+                Source
+              </a>
+            </Button>
+          </div>
         </div>
         <div className="flex flex-col gap-4">
           <Suspense fallback={<Skeleton className="w-full h-9 rounded-full" />}>
