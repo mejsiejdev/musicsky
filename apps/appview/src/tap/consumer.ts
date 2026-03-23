@@ -49,7 +49,8 @@ export async function handleSong(
         record: JSON.stringify(evt.record),
         indexed_at: new Date().toISOString(),
         created_at:
-          (evt.record!["createdAt"] as string) ?? new Date().toISOString(),
+          (evt.record!["createdAt"] as string) ??
+          getCreatedAtFromRkey(evt.rkey),
       }),
     )
     .execute();
