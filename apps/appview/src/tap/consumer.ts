@@ -1,4 +1,4 @@
-import { Tap, SimpleIndexer } from "@atproto/tap";
+import { TapChannel, SimpleIndexer } from "@atproto/tap";
 import type { RecordEvent, IdentityEvent } from "@atproto/tap";
 import { AtUri } from "@atproto/syntax";
 import type { Kysely } from "kysely";
@@ -120,12 +120,19 @@ interface TapConsumerDeps {
   tapAdminPassword: string | undefined;
 }
 
+function buildTapWsUrl(tapUrl: string): string {
+  const url = new URL(tapUrl);
+  if (url.protocol === "http:") url.protocol = "ws:";
+  else if (url.protocol === "https:") url.protocol = "wss:";
+  url.pathname = "/channel";
+  return url.toString();
+}
+
 export function createTapConsumer(deps: TapConsumerDeps): { start(): void } {
   const { db, resolver, tapUrl, tapAdminPassword } = deps;
 
   return {
     start() {
-      const tap = new Tap(tapUrl, { adminPassword: tapAdminPassword });
       const indexer = new SimpleIndexer();
 
       indexer
@@ -153,12 +160,15 @@ export function createTapConsumer(deps: TapConsumerDeps): { start(): void } {
           console.error("Tap consumer error:", err);
         });
 
-      const channel = tap.channel(indexer);
+      const wsUrl = buildTapWsUrl(tapUrl);
+      const channel = new TapChannel(wsUrl, indexer, {
+        adminPassword: tapAdminPassword,
+      });
       channel.start().catch((err) => {
         console.error("Tap channel ended:", err);
       });
 
-      console.log(`Tap consumer started, connecting to ${tapUrl}`);
+      console.log(`Tap consumer started, connecting to ${wsUrl}`);
     },
   };
 }
