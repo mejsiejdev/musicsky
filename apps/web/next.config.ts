@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const appviewUrl =
+  process.env.NEXT_PUBLIC_APPVIEW_URL ?? "http://127.0.0.1:3001";
+
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
@@ -13,12 +16,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "3001",
-        pathname: "/blob/**",
-      },
+      new URL(`${appviewUrl}/blob/**`),
       {
         protocol: "https",
         hostname: "cdn.bsky.app",
