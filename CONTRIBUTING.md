@@ -5,6 +5,8 @@ Thank you for your interest in contributing! This guide covers everything you ne
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/)
+- [pnpm](https://pnpm.io/) (the repo uses `pnpm@10` — install it directly or enable [corepack](https://nodejs.org/api/corepack.html) with `corepack enable`)
+- [Tap](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md) — an AT Protocol sync utility that provides data for the appview
 
 ## Local Setup
 
@@ -17,10 +19,21 @@ cd musicsky
 pnpm install
 
 # 3. Start the development server
-pnpm run dev
+pnpm dev
 ```
 
+This starts both `apps/web` (the frontend) and `apps/appview` (the AT Protocol appview) via Turbo.
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+No `.env` files are required — the configs provide sensible defaults for local development.
+
+### Setting Up the Tap
+
+The appview relies on [Tap](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md) to sync AT Protocol data. Follow the Tap README to install it, then run it with:
+
+```bash
+TAP_SIGNAL_COLLECTION=app.musicsky.temp.song tap
+```
 
 ## Branch Naming
 
@@ -52,20 +65,15 @@ fix(auth): handle expired OAuth token gracefully
 chore: upgrade Next.js to 16.3
 ```
 
-## Pull Request Checklist
+## Pull Requests
 
-Before opening a PR, make sure the following pass locally:
-
-```bash
-pnpm run typecheck   # TypeScript type checking
-pnpm run lint        # ESLint + Prettier formatting check
-```
+Pre-commit hooks (husky + lint-staged) run formatting and linting automatically. CI runs `knip`, `typecheck`, `lint`, and `build` on every push and pull request.
 
 A good PR:
 
 - Has a clear title following the commit style above
 - Describes _what_ changed and _why_ in the PR body
-- Keeps changes focused - one concern per PR
+- Keeps changes focused, with one concern per PR
 - Links to a relevant issue if one exists
 
 ## Reporting Bugs

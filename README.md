@@ -14,30 +14,40 @@ MusicSky is a social music platform built on the [AT Protocol](https://atproto.c
 | Styling   | Tailwind CSS v4, shadcn/ui                       |
 | State     | Zustand                                          |
 
+## Project Structure
+
+This is a [pnpm](https://pnpm.io/) monorepo managed with [Turborepo](https://turbo.build/repo).
+
+| Path                | Description                     |
+| ------------------- | ------------------------------- |
+| `apps/web`          | Next.js frontend                |
+| `apps/appview`      | AT Protocol appview service     |
+| `packages/common`   | Shared utilities                |
+| `packages/lexicons` | AT Protocol lexicon definitions |
+
 ## Getting Started
 
 ```bash
-# Install dependencies
+# Install dependencies (requires pnpm)
 pnpm install
 
-# Start the dev server
-pnpm run dev
+# Start both apps in dev mode
+pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+`pnpm dev` starts both `apps/web` and `apps/appview` via Turbo.
+Open [http://localhost:3000](http://localhost:3000) for the web frontend.
 
 ## Scripts
 
-| Script               | Description                                       |
-| -------------------- | ------------------------------------------------- |
-| `pnpm run dev`       | Run migrations and start the development server   |
-| `pnpm run build`     | Build for production                              |
-| `pnpm run start`     | Run migrations and start the production server    |
-| `pnpm run migrate`   | Run database migrations                           |
-| `pnpm run gen-key`   | Generate a private key for production deployments |
-| `pnpm run typecheck` | Type-check with TypeScript                        |
-| `pnpm run lint`      | Lint with ESLint                                  |
-| `pnpm run format`    | Format with Prettier                              |
+| Script           | Description                                |
+| ---------------- | ------------------------------------------ |
+| `pnpm dev`       | Start both apps in development mode        |
+| `pnpm build`     | Build all apps and packages for production |
+| `pnpm typecheck` | Type-check with TypeScript                 |
+| `pnpm lint`      | Lint with ESLint                           |
+| `pnpm knip`      | Find unused exports and dependencies       |
+| `pnpm format`    | Format with Prettier                       |
 
 ## Contributing
 
