@@ -18,5 +18,7 @@ steps:
     command: pnpm run typecheck
   - name: lint
     command: pnpm run lint
+  - name: test
+    command: pnpm run test
   - name: build
     command: pnpm run build
