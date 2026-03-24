@@ -11,8 +11,8 @@ Thank you for your interest in contributing! This guide covers everything you ne
 ## Local Setup
 
 ```bash
-# 1. Fork and clone the repository
-git clone https://tangled.org/mejsiejdev.bsky.social/musicsky.git
+# 1. Clone the repository
+git clone https://tangled.org/mejsiejdev.bsky.social/musicsky
 cd musicsky
 
 # 2. Install dependencies
@@ -32,7 +32,7 @@ No `.env` files are required. The configs provide sensible defaults for local de
 The appview relies on [Tap](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md) to sync AT Protocol data. Follow the Tap README to install it, then run it with:
 
 ```bash
-TAP_SIGNAL_COLLECTION=app.musicsky.temp.song tap
+TAP_SIGNAL_COLLECTION=app.musicsky.temp.song tap run
 ```
 
 ## Branch Naming
