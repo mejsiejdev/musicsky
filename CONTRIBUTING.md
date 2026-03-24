@@ -5,8 +5,8 @@ Thank you for your interest in contributing! This guide covers everything you ne
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/)
-- [pnpm](https://pnpm.io/) (the repo uses `pnpm@10` — install it directly or enable [corepack](https://nodejs.org/api/corepack.html) with `corepack enable`)
-- [Tap](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md) — an AT Protocol sync utility that provides data for the appview
+- [pnpm](https://pnpm.io/) (install it directly or enable [corepack](https://nodejs.org/api/corepack.html) with `corepack enable`)
+- [Tap](https://github.com/bluesky-social/indigo/blob/main/cmd/tap/README.md) - an AT Protocol sync utility that provides data for the appview
 
 ## Local Setup
 
@@ -25,7 +25,7 @@ pnpm dev
 This starts both `apps/web` (the frontend) and `apps/appview` (the AT Protocol appview) via Turbo.
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-No `.env` files are required — the configs provide sensible defaults for local development.
+No `.env` files are required. The configs provide sensible defaults for local development.
 
 ### Setting Up the Tap
 
@@ -78,7 +78,7 @@ A good PR:
 
 ## Reporting Bugs
 
-Please open a [issue](https://tangled.org/mejsiejdev.bsky.social/musicsky/issues) and include:
+Please open an [issue](https://tangled.org/mejsiejdev.bsky.social/musicsky/issues) and include:
 
 - Steps to reproduce
 - Expected vs. actual behaviour

@@ -6,13 +6,22 @@ MusicSky is a social music platform built on the [AT Protocol](https://atproto.c
 
 ## Tech Stack
 
+### Web (`apps/web`)
+
 | Layer     | Technology                                       |
 | --------- | ------------------------------------------------ |
 | Framework | Next.js 16, React 19                             |
 | Auth      | AT Protocol OAuth (`@atproto/oauth-client-node`) |
-| Database  | SQLite + Kysely                                  |
 | Styling   | Tailwind CSS v4, shadcn/ui                       |
 | State     | Zustand                                          |
+
+### Appview (`apps/appview`)
+
+| Layer    | Technology      |
+| -------- | --------------- |
+| Server   | Express 5       |
+| Database | SQLite + Kysely |
+| Sync     | AT Protocol Tap |
 
 ## Project Structure
 
