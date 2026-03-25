@@ -10,6 +10,7 @@ import {
   ListMusicIcon,
   PencilIcon,
   TrashIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 import { usePlayerStore } from "@/stores/player-store";
 import { useInteraction } from "@/hooks/use-interaction";
@@ -26,6 +27,7 @@ import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { formatDistanceToNow, format } from "date-fns";
 import { usePlaylistQueue } from "@/components/playlist/playlist-queue-context";
+import { CommentDialog } from "./comment-dialog";
 
 const AddToPlaylistDialog = dynamic(
   () =>
@@ -215,6 +217,14 @@ export function Song({
               fill={optimisticLiked ? "currentColor" : "none"}
             />
           </button>
+          <CommentDialog songTitle={title} isLoggedIn={loggedIn}>
+            <button
+              aria-label="Comment"
+              className="flex flex-row items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <MessageCircleIcon size={18} />
+            </button>
+          </CommentDialog>
         </div>
         <div className="flex flex-row items-center gap-4">
           <SharePopover shareUrl={shareUrl} />
