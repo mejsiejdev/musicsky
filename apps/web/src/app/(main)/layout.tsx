@@ -19,8 +19,7 @@ export default function MainLayout({
         <div className="flex flex-col gap-4">
           <div className="space-y-2">
             <div className="flex flex-row items-baseline justify-between">
-              <h1 className="text-3xl font-bold text-primary">MusicSky</h1>
-              <ThemeToggle />
+              <h1 className="text-3xl font-bold text-primary">Musicsky</h1>
             </div>
             <h2 className="text-sm text-muted-foreground">
               Listen and share the music in the Atmosphere.
@@ -49,6 +48,7 @@ export default function MainLayout({
                 Source
               </a>
             </Button>
+            <ThemeToggle variant="nav" />
           </div>
         </div>
         <div className="flex flex-col gap-4">
