@@ -32,4 +32,5 @@ export const COLLECTIONS = {
   playlist: "app.musicsky.temp.playlist",
   like: "app.musicsky.temp.like",
   repost: "app.musicsky.temp.repost",
+  comment: "app.musicsky.temp.comment",
 } as const;

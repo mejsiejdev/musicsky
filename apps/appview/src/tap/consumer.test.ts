@@ -2,7 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Kysely } from "kysely";
 import type { DatabaseSchema } from "../db/schema.js";
 import type { IdentityResolver } from "../identity/resolver.js";
-import { handleSong, handleLike, handleRepost } from "./consumer.js";
+import {
+  handleSong,
+  handleLike,
+  handleRepost,
+  handleComment,
+} from "./consumer.js";
 import { createTestDb } from "../tests/helpers/db.js";
 import { COLLECTIONS } from "common";
 
@@ -207,5 +212,121 @@ describe("handleRepost", () => {
 
     rows = await db.selectFrom("repost").selectAll().execute();
     expect(rows).toHaveLength(0);
+  });
+});
+
+describe("handleComment", () => {
+  let db: Kysely<DatabaseSchema>;
+
+  beforeEach(async () => {
+    db = await createTestDb();
+  });
+
+  it("inserts a comment on create", async () => {
+    await handleComment(
+      {
+        action: "create",
+        did: "did:plc:commenter",
+        collection: COLLECTIONS.comment,
+        rkey: "3jui7kd2zcszw",
+        cid: "bafyreicomment",
+        record: {
+          text: "Great song!",
+          reply: {
+            root: {
+              uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+              cid: "bafyreiabc",
+            },
+            parent: {
+              uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+              cid: "bafyreiabc",
+            },
+          },
+          createdAt: "2026-03-22T00:00:00.000Z",
+        },
+      } as never,
+      db,
+    );
+
+    const row = await db.selectFrom("comment").selectAll().executeTakeFirst();
+    expect(row).toBeDefined();
+    expect(row?.did).toBe("did:plc:commenter");
+    expect(row?.text).toBe("Great song!");
+    expect(row?.subject_uri).toBe(
+      "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+    );
+    expect(row?.parent_uri).toBe(
+      "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+    );
+  });
+
+  it("deletes a comment on delete", async () => {
+    await handleComment(
+      {
+        action: "create",
+        did: "did:plc:commenter",
+        collection: COLLECTIONS.comment,
+        rkey: "3jui7kd2zcszw",
+        cid: "bafyreicomment",
+        record: {
+          text: "Great song!",
+          reply: {
+            root: {
+              uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+              cid: "bafyreiabc",
+            },
+            parent: {
+              uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+              cid: "bafyreiabc",
+            },
+          },
+          createdAt: "2026-03-22T00:00:00.000Z",
+        },
+      } as never,
+      db,
+    );
+
+    await handleComment(
+      {
+        action: "delete",
+        did: "did:plc:commenter",
+        collection: COLLECTIONS.comment,
+        rkey: "3jui7kd2zcszw",
+      } as never,
+      db,
+    );
+
+    const rows = await db.selectFrom("comment").selectAll().execute();
+    expect(rows).toHaveLength(0);
+  });
+
+  it("is idempotent — second insert with same URI is ignored", async () => {
+    const evt = {
+      action: "create",
+      did: "did:plc:commenter",
+      collection: COLLECTIONS.comment,
+      rkey: "3jui7kd2zcszw",
+      cid: "bafyreicomment",
+      record: {
+        text: "Great song!",
+        reply: {
+          root: {
+            uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+            cid: "bafyreiabc",
+          },
+          parent: {
+            uri: "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
+            cid: "bafyreiabc",
+          },
+        },
+        createdAt: "2026-03-22T00:00:00.000Z",
+      },
+    } as never;
+
+    await handleComment(evt, db);
+    await handleComment(evt, db);
+
+    const rows = await db.selectFrom("comment").selectAll().execute();
+    expect(rows).toHaveLength(1);
   });
 });

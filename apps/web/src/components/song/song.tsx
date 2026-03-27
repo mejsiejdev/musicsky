@@ -12,6 +12,7 @@ import {
   TrashIcon,
   MessageCircleIcon,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "@/stores/player-store";
 import { useInteraction } from "@/hooks/use-interaction";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,7 @@ import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { formatDistanceToNow, format } from "date-fns";
 import { usePlaylistQueue } from "@/components/playlist/playlist-queue-context";
-import { CommentDialog } from "./comment-dialog";
+import { CommentInput } from "@/components/comment/comment-input";
 
 const AddToPlaylistDialog = dynamic(
   () =>
@@ -95,6 +96,27 @@ export function Song({
 
   const { optimisticLiked, optimisticReposted, handleLike, handleRepost } =
     useInteraction({ uri, cid, author, likeRkey, repostRkey });
+
+  const [commentOpen, setCommentOpen] = useState(false);
+  const commentAreaRef = useRef<HTMLDivElement>(null);
+  const commentButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!commentOpen) return;
+    function handler(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        commentAreaRef.current &&
+        !commentAreaRef.current.contains(target) &&
+        commentButtonRef.current &&
+        !commentButtonRef.current.contains(target)
+      ) {
+        setCommentOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [commentOpen]);
 
   const queueSongs = usePlaylistQueue();
   const createdAtDate = new Date(createdAt);
@@ -217,14 +239,29 @@ export function Song({
               fill={optimisticLiked ? "currentColor" : "none"}
             />
           </button>
-          <CommentDialog songTitle={title} isLoggedIn={loggedIn}>
+          {loggedIn ? (
             <button
+              ref={commentButtonRef}
+              onClick={() => setCommentOpen((prev) => !prev)}
               aria-label="Comment"
+              disabled={!cid}
               className="flex flex-row items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <MessageCircleIcon size={18} />
             </button>
-          </CommentDialog>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  aria-label="Comment"
+                  className="flex flex-row items-center gap-2 cursor-pointer opacity-50"
+                >
+                  <MessageCircleIcon size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Log in to comment</TooltipContent>
+            </Tooltip>
+          )}
         </div>
         <div className="flex flex-row items-center gap-4">
           <SharePopover shareUrl={shareUrl} />
@@ -256,6 +293,16 @@ export function Song({
           )}
         </div>
       </div>
+      {commentOpen && cid && (
+        <div ref={commentAreaRef}>
+          <CommentInput
+            uri={uri}
+            cid={cid}
+            songTitle={title}
+            onClose={() => setCommentOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

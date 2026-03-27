@@ -9,6 +9,7 @@ import { COLLECTIONS, getCreatedAtFromRkey } from "common";
 const SONG = COLLECTIONS.song;
 const LIKE = COLLECTIONS.like;
 const REPOST = COLLECTIONS.repost;
+const COMMENT = COLLECTIONS.comment;
 
 export async function handleSong(
   evt: RecordEvent,
@@ -114,6 +115,41 @@ export async function handleRepost(
     .execute();
 }
 
+export async function handleComment(
+  evt: RecordEvent,
+  db: Kysely<DatabaseSchema>,
+): Promise<void> {
+  const uri = AtUri.make(evt.did, evt.collection, evt.rkey).toString();
+
+  if (evt.action === "delete") {
+    await db.deleteFrom("comment").where("uri", "=", uri).execute();
+    return;
+  }
+
+  if (!evt.record || !evt.cid) return;
+
+  const reply = evt.record["reply"] as
+    | { root?: { uri: string }; parent?: { uri: string } }
+    | undefined;
+  const text = evt.record["text"] as string | undefined;
+  if (!reply?.root?.uri || !reply?.parent?.uri || !text) return;
+
+  await db
+    .insertInto("comment")
+    .values({
+      uri,
+      cid: evt.cid,
+      did: evt.did,
+      rkey: evt.rkey,
+      subject_uri: reply.root.uri,
+      parent_uri: reply.parent.uri,
+      text,
+      created_at: getCreatedAtFromRkey(evt.rkey),
+    })
+    .onConflict((oc) => oc.column("uri").doNothing())
+    .execute();
+}
+
 interface TapConsumerDeps {
   db: Kysely<DatabaseSchema>;
   resolver: IdentityResolver;
@@ -145,6 +181,8 @@ export function createTapConsumer(deps: TapConsumerDeps): { start(): void } {
               await handleLike(evt, db);
             } else if (evt.collection === REPOST) {
               await handleRepost(evt, db);
+            } else if (evt.collection === COMMENT) {
+              await handleComment(evt, db);
             }
           } catch (err) {
             console.error(`Error handling ${evt.collection} event:`, err);

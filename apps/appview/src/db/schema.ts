@@ -32,9 +32,21 @@ export interface RepostTable {
   created_at: string;
 }
 
+export interface CommentTable {
+  uri: string;
+  cid: string;
+  did: string;
+  rkey: string;
+  subject_uri: string;
+  parent_uri: string;
+  text: string;
+  created_at: string;
+}
+
 export interface DatabaseSchema {
   song: SongTable;
   identity: IdentityTable;
   like: LikeTable;
   repost: RepostTable;
+  comment: CommentTable;
 }

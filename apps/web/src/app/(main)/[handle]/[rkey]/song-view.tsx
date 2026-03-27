@@ -1,4 +1,5 @@
 import { Song } from "@/components/song";
+import { CommentSection } from "@/components/comment/comment-section";
 import { type TrackRecord } from "@/types/song";
 import { Agent } from "@atproto/api";
 import { notFound } from "next/navigation";
@@ -61,12 +62,20 @@ export async function SongView({
   const isOwner = session?.did === song.uri.split("/")[2];
 
   return (
-    <Song
-      {...song}
-      isOwner={isOwner}
-      loggedIn={session !== null}
-      likeRkey={likedUris.get(song.uri) ?? null}
-      repostRkey={repostedUris.get(song.uri) ?? null}
-    />
+    <>
+      <Song
+        {...song}
+        isOwner={isOwner}
+        loggedIn={session !== null}
+        likeRkey={likedUris.get(song.uri) ?? null}
+        repostRkey={repostedUris.get(song.uri) ?? null}
+      />
+      <CommentSection
+        uri={song.uri}
+        cid={song.cid}
+        songTitle={song.title}
+        isLoggedIn={session !== null}
+      />
+    </>
   );
 }
