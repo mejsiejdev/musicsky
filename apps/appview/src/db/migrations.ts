@@ -86,6 +86,50 @@ export const migrations: Record<string, Migration> = {
       await db.schema.dropTable("song").execute();
     },
   },
+
+  "002": {
+    async up(db: Kysely<unknown>) {
+      await db.schema
+        .createTable("comment")
+        .addColumn("uri", "text", (col) => col.primaryKey())
+        .addColumn("did", "text", (col) => col.notNull())
+        .addColumn("rkey", "text", (col) => col.notNull())
+        .addColumn("subject_uri", "text", (col) => col.notNull())
+        .addColumn("parent_uri", "text", (col) => col.notNull())
+        .addColumn("text", "text", (col) => col.notNull())
+        .addColumn("created_at", "text", (col) => col.notNull())
+        .execute();
+
+      await db.schema
+        .createIndex("idx_comment_subject")
+        .on("comment")
+        .column("subject_uri")
+        .execute();
+
+      await db.schema
+        .createIndex("idx_comment_did_subject")
+        .on("comment")
+        .columns(["did", "subject_uri"])
+        .execute();
+    },
+
+    async down(db: Kysely<unknown>) {
+      await db.schema.dropTable("comment").execute();
+    },
+  },
+
+  "003": {
+    async up(db: Kysely<unknown>) {
+      await db.schema
+        .alterTable("comment")
+        .addColumn("cid", "text", (col) => col.notNull().defaultTo(""))
+        .execute();
+    },
+
+    async down(db: Kysely<unknown>) {
+      await db.schema.alterTable("comment").dropColumn("cid").execute();
+    },
+  },
 };
 
 export function getMigrator() {
