@@ -1,12 +1,7 @@
-"use client";
-
-import { useCallback, useState } from "react";
-import useSWR from "swr";
+import { cacheLife, cacheTag } from "next/cache";
 import { MessageCircleIcon } from "lucide-react";
-import { Comment } from "./comment";
-import { CommentInput } from "./comment-input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { APPVIEW_URL } from "@/lib/api";
+import { CommentList } from "./comment-list";
 
 interface CommentAuthor {
   did: string;
@@ -14,7 +9,7 @@ interface CommentAuthor {
   pds: string;
 }
 
-interface CommentView {
+export interface CommentView {
   uri: string;
   cid: string;
   text: string;
@@ -30,12 +25,29 @@ interface CommentsResponse {
   totalCount: number;
 }
 
-interface CommentNode {
+export interface CommentNode {
   comment: CommentView;
   children: CommentNode[];
 }
 
-const VISIBLE_REPLIES = 3;
+const MAX_LIMIT = 50;
+
+async function getComments(uri: string): Promise<CommentsResponse> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`comments-${uri}`);
+
+  const params = new URLSearchParams({ uri, limit: String(MAX_LIMIT) });
+  const res = await fetch(
+    `${APPVIEW_URL}/xrpc/app.musicsky.temp.getComments?${params.toString()}`,
+  );
+
+  if (!res.ok) {
+    return { comments: [], totalCount: 0 };
+  }
+
+  return (await res.json()) as CommentsResponse;
+}
 
 function buildThread(comments: CommentView[]): CommentNode[] {
   const nodeMap = new Map<string, CommentNode>();
@@ -67,13 +79,7 @@ function pruneDeletedLeaves(nodes: CommentNode[]): CommentNode[] {
   });
 }
 
-async function fetchComments(url: string): Promise<CommentsResponse> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch comments");
-  return (await res.json()) as CommentsResponse;
-}
-
-export function CommentSection({
+export async function CommentSection({
   uri,
   cid,
   songTitle,
@@ -88,200 +94,28 @@ export function CommentSection({
   userDid?: string;
   userHandle?: string;
 }) {
-  const [replyTarget, setReplyTarget] = useState<{
-    uri: string;
-    cid: string;
-    handle: string;
-  } | null>(null);
-
-  const { data, error, isLoading, mutate } = useSWR(
-    `/api/comments?uri=${encodeURIComponent(uri)}&limit=${MAX_LIMIT}`,
-    fetchComments,
-    { refreshInterval: 60_000 },
-  );
-
-  const handleCommentPosted = useCallback(
-    (text: string) => {
-      const parent = replyTarget;
-      setReplyTarget(null);
-
-      if (userDid && userHandle) {
-        const optimisticComment: CommentView = {
-          uri: `at://${userDid}/app.musicsky.temp.comment/${Date.now()}`,
-          cid: "optimistic",
-          text,
-          author: { did: userDid, handle: userHandle, pds: "" },
-          createdAt: new Date().toISOString(),
-          ...(parent ? { parent: { uri: parent.uri, cid: parent.cid } } : {}),
-        };
-
-        void mutate(
-          (current) => {
-            if (!current) return current;
-            return {
-              ...current,
-              totalCount: current.totalCount + 1,
-              comments: [...current.comments, optimisticComment],
-            };
-          },
-          { revalidate: true },
-        );
-      } else {
-        void mutate();
-      }
-    },
-    [mutate, replyTarget, userDid, userHandle],
-  );
-
-  const handleReply = useCallback(
-    (commentUri: string, commentCid: string, handle: string) => {
-      setReplyTarget({ uri: commentUri, cid: commentCid, handle });
-    },
-    [],
-  );
-
-  const handleDeleted = useCallback(() => {
-    void mutate();
-  }, [mutate]);
-
-  const allComments = data?.comments ?? [];
-  const totalCount = data?.totalCount ?? 0;
-  const threadRoots = allComments.length > 0 ? buildThread(allComments) : [];
+  const data = await getComments(uri);
+  const threadRoots = buildThread(data.comments);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row items-center gap-2">
         <MessageCircleIcon size={18} />
         <h2 className="text-sm font-medium">
-          {isLoading
-            ? "Comments"
-            : `${totalCount} ${totalCount === 1 ? "comment" : "comments"}`}
+          {data.totalCount}{" "}
+          {data.totalCount === 1 ? "comment" : "comments"}
         </h2>
       </div>
 
-      {isLoggedIn && cid && (
-        <CommentInput
-          uri={uri}
-          cid={cid}
-          songTitle={songTitle}
-          onClose={() => setReplyTarget(null)}
-          onCommentPosted={handleCommentPosted}
-          parentUri={replyTarget?.uri}
-          parentCid={replyTarget?.cid}
-          replyToHandle={replyTarget?.handle}
-        />
-      )}
-
-      {isLoading && (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex flex-row gap-3">
-              <Skeleton className="size-6 rounded-full shrink-0" />
-              <div className="flex flex-col gap-1 w-full">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {error && (
-        <p className="text-sm text-muted-foreground">
-          Failed to load comments.
-        </p>
-      )}
-
-      {!isLoading && !error && allComments.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No comments yet. Be the first to comment!
-        </p>
-      )}
-
-      {threadRoots.length > 0 && (
-        <div className="flex flex-col">
-          {threadRoots.map((node) => (
-            <CommentThread
-              key={node.comment.uri}
-              node={node}
-              trackUri={uri}
-              userDid={userDid}
-              isLoggedIn={isLoggedIn}
-              onReply={handleReply}
-              onDeleted={handleDeleted}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-const MAX_LIMIT = 50;
-
-function CommentThread({
-  node,
-  trackUri,
-  userDid,
-  isLoggedIn,
-  onReply,
-  onDeleted,
-}: {
-  node: CommentNode;
-  trackUri: string;
-  userDid?: string;
-  isLoggedIn: boolean;
-  onReply: (uri: string, cid: string, handle: string) => void;
-  onDeleted: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const { comment, children } = node;
-
-  const visibleChildren = expanded
-    ? children
-    : children.slice(0, VISIBLE_REPLIES);
-  const hiddenCount = expanded ? 0 : children.length - VISIBLE_REPLIES;
-  const hasVisibleChildren = visibleChildren.length > 0 || hiddenCount > 0;
-
-  return (
-    <>
-      <Comment
-        uri={comment.uri}
-        cid={comment.cid}
-        text={comment.text}
-        author={comment.author}
-        createdAt={comment.createdAt}
-        deleted={comment.deleted}
-        isOwn={userDid === comment.author.did}
+      <CommentList
+        uri={uri}
+        cid={cid}
+        songTitle={songTitle}
         isLoggedIn={isLoggedIn}
-        trackUri={trackUri}
-        showThreadLine={hasVisibleChildren}
-        onReply={onReply}
-        onDeleted={onDeleted}
+        userDid={userDid}
+        userHandle={userHandle}
+        threadRoots={threadRoots}
       />
-
-      {visibleChildren.map((child) => (
-        <CommentThread
-          key={child.comment.uri}
-          node={child}
-          trackUri={trackUri}
-          userDid={userDid}
-          isLoggedIn={isLoggedIn}
-          onReply={onReply}
-          onDeleted={onDeleted}
-        />
-      ))}
-
-      {hiddenCount > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 text-xs text-muted-foreground"
-          onClick={() => setExpanded(true)}
-        >
-          Show {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}
-        </Button>
-      )}
-    </>
+    </div>
   );
 }
