@@ -7,6 +7,7 @@ import { cacheTag } from "next/cache";
 import { getSession } from "@/lib/auth/session";
 import {
   getDid,
+  getHandleFromDid,
   getPds,
   getUserInteractions,
   mapRecordToSong,
@@ -60,6 +61,9 @@ export async function SongView({
   }
 
   const isOwner = session?.did === song.uri.split("/")[2];
+  const userHandle = session
+    ? await getHandleFromDid(session.did)
+    : undefined;
 
   return (
     <>
@@ -75,6 +79,8 @@ export async function SongView({
         cid={song.cid}
         songTitle={song.title}
         isLoggedIn={session !== null}
+        userDid={session?.did}
+        userHandle={userHandle}
       />
     </>
   );

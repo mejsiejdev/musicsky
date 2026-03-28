@@ -52,15 +52,29 @@
     },
     "commentView": {
       "type": "object",
-      "required": ["uri", "text", "author", "createdAt"],
+      "required": ["uri", "cid", "text", "author", "createdAt"],
       "properties": {
         "uri": { "type": "string" },
+        "cid": { "type": "string" },
         "text": { "type": "string" },
         "author": {
           "type": "ref",
           "ref": "app.musicsky.temp.getFeed#authorView"
         },
-        "createdAt": { "type": "string" }
+        "createdAt": { "type": "string" },
+        "parent": {
+          "type": "ref",
+          "ref": "#parentRef"
+        },
+        "deleted": { "type": "boolean" }
+      }
+    },
+    "parentRef": {
+      "type": "object",
+      "required": ["uri", "cid"],
+      "properties": {
+        "uri": { "type": "string" },
+        "cid": { "type": "string" }
       }
     }
   }

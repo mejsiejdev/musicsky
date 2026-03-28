@@ -33,6 +33,10 @@ export async function getCommentsHandler(
       "c.did",
       "c.text",
       "c.created_at",
+      "c.parent_uri",
+      "c.parent_cid",
+      "c.subject_uri",
+      "c.deleted",
       "i.handle",
       "i.pds",
     ])
@@ -63,6 +67,7 @@ export async function getCommentsHandler(
       .selectFrom("comment")
       .select((eb) => eb.fn.count<number>("uri").as("count"))
       .where("subject_uri", "=", uri)
+      .where("deleted", "=", 0)
       .executeTakeFirstOrThrow(),
   ]);
 
@@ -71,13 +76,17 @@ export async function getCommentsHandler(
   const comments: CommentView[] = rows.map((row) => ({
     uri: row.uri,
     cid: row.cid,
-    text: row.text,
+    text: row.deleted ? "" : row.text,
     author: {
       did: row.did,
       handle: row.handle,
       pds: row.pds,
     },
     createdAt: row.created_at,
+    ...(row.parent_uri !== row.subject_uri
+      ? { parent: { uri: row.parent_uri, cid: row.parent_cid } }
+      : {}),
+    ...(row.deleted ? { deleted: true } : {}),
   }));
 
   const lastRow = rows[rows.length - 1];

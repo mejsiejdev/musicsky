@@ -6,6 +6,8 @@ export interface CommentView {
   text: string;
   author: AuthorView;
   createdAt: string;
+  parent?: { uri: string; cid: string };
+  deleted?: boolean;
 }
 
 export interface CommentsOutput {

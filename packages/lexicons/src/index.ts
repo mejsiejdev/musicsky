@@ -10,6 +10,7 @@ import { schemas } from './lexicons.js'
 import { CID } from 'multiformats/cid'
 import { type OmitKey, type Un$Typed } from './util.js'
 import * as AppMusicskyTempComment from './types/app/musicsky/temp/comment.js'
+import * as AppMusicskyTempGetComments from './types/app/musicsky/temp/getComments.js'
 import * as AppMusicskyTempGetFeed from './types/app/musicsky/temp/getFeed.js'
 import * as AppMusicskyTempLike from './types/app/musicsky/temp/like.js'
 import * as AppMusicskyTempPlaylist from './types/app/musicsky/temp/playlist.js'
@@ -17,6 +18,7 @@ import * as AppMusicskyTempRepost from './types/app/musicsky/temp/repost.js'
 import * as AppMusicskyTempSong from './types/app/musicsky/temp/song.js'
 
 export * as AppMusicskyTempComment from './types/app/musicsky/temp/comment.js'
+export * as AppMusicskyTempGetComments from './types/app/musicsky/temp/getComments.js'
 export * as AppMusicskyTempGetFeed from './types/app/musicsky/temp/getFeed.js'
 export * as AppMusicskyTempLike from './types/app/musicsky/temp/like.js'
 export * as AppMusicskyTempPlaylist from './types/app/musicsky/temp/playlist.js'
@@ -72,6 +74,18 @@ export class AppMusicskyTempNS {
     this.playlist = new AppMusicskyTempPlaylistRecord(client)
     this.repost = new AppMusicskyTempRepostRecord(client)
     this.song = new AppMusicskyTempSongRecord(client)
+  }
+
+  getComments(
+    params?: AppMusicskyTempGetComments.QueryParams,
+    opts?: AppMusicskyTempGetComments.CallOptions,
+  ): Promise<AppMusicskyTempGetComments.Response> {
+    return this._client.call(
+      'app.musicsky.temp.getComments',
+      params,
+      undefined,
+      opts,
+    )
   }
 
   getFeed(

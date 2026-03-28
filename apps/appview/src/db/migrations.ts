@@ -130,6 +130,32 @@ export const migrations: Record<string, Migration> = {
       await db.schema.alterTable("comment").dropColumn("cid").execute();
     },
   },
+
+  "004": {
+    async up(db: Kysely<unknown>) {
+      await db.schema
+        .alterTable("comment")
+        .addColumn("deleted", "integer", (col) => col.notNull().defaultTo(0))
+        .execute();
+      await db.schema
+        .alterTable("comment")
+        .addColumn("parent_cid", "text", (col) =>
+          col.notNull().defaultTo(""),
+        )
+        .execute();
+      await db.schema
+        .createIndex("idx_comment_parent_uri")
+        .on("comment")
+        .column("parent_uri")
+        .execute();
+    },
+
+    async down(db: Kysely<unknown>) {
+      await db.schema.dropIndex("idx_comment_parent_uri").execute();
+      await db.schema.alterTable("comment").dropColumn("parent_cid").execute();
+      await db.schema.alterTable("comment").dropColumn("deleted").execute();
+    },
+  },
 };
 
 export function getMigrator() {

@@ -122,14 +122,21 @@ export async function handleComment(
   const uri = AtUri.make(evt.did, evt.collection, evt.rkey).toString();
 
   if (evt.action === "delete") {
-    await db.deleteFrom("comment").where("uri", "=", uri).execute();
+    await db
+      .updateTable("comment")
+      .set({ deleted: 1, text: "" })
+      .where("uri", "=", uri)
+      .execute();
     return;
   }
 
   if (!evt.record || !evt.cid) return;
 
   const reply = evt.record["reply"] as
-    | { root?: { uri: string }; parent?: { uri: string } }
+    | {
+        root?: { uri: string; cid?: string };
+        parent?: { uri: string; cid?: string };
+      }
     | undefined;
   const text = evt.record["text"] as string | undefined;
   if (!reply?.root?.uri || !reply?.parent?.uri || !text) return;
@@ -143,8 +150,10 @@ export async function handleComment(
       rkey: evt.rkey,
       subject_uri: reply.root.uri,
       parent_uri: reply.parent.uri,
+      parent_cid: reply.parent.cid ?? "",
       text,
       created_at: getCreatedAtFromRkey(evt.rkey),
+      deleted: 0,
     })
     .onConflict((oc) => oc.column("uri").doNothing())
     .execute();
