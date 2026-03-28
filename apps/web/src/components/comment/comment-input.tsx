@@ -14,7 +14,6 @@ export function CommentInput({
   cid,
   songTitle,
   onClose,
-  onCommentPosted,
   parentUri,
   parentCid,
   replyToHandle,
@@ -23,7 +22,6 @@ export function CommentInput({
   cid: string;
   songTitle: string;
   onClose: () => void;
-  onCommentPosted?: (text: string) => void;
   parentUri?: string;
   parentCid?: string;
   replyToHandle?: string;
@@ -32,12 +30,10 @@ export function CommentInput({
 
   const [state, action, pending] = useActionState(
     async (prevState: ActionResult | null, formData: FormData) => {
-      const submittedText = (formData.get("text") as string).trim();
       const result = await createComment(prevState, formData);
       if (result.success) {
         setText("");
         onClose();
-        onCommentPosted?.(submittedText);
       }
       return result;
     },

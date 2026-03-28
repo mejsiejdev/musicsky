@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Song } from "@/components/song";
 import { CommentSection } from "@/components/comment/comment-section";
 import { type TrackRecord } from "@/types/song";
@@ -74,14 +75,16 @@ export async function SongView({
         likeRkey={likedUris.get(song.uri) ?? null}
         repostRkey={repostedUris.get(song.uri) ?? null}
       />
-      <CommentSection
-        uri={song.uri}
-        cid={song.cid}
-        songTitle={song.title}
-        isLoggedIn={session !== null}
-        userDid={session?.did}
-        userHandle={userHandle}
-      />
+      <Suspense>
+        <CommentSection
+          uri={song.uri}
+          cid={song.cid}
+          songTitle={song.title}
+          isLoggedIn={session !== null}
+          userDid={session?.did}
+          userHandle={userHandle}
+        />
+      </Suspense>
     </>
   );
 }

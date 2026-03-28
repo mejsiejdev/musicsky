@@ -50,7 +50,6 @@ export function Comment({
   trackUri,
   showThreadLine,
   onReply,
-  onDeleted,
 }: {
   uri: string;
   cid: string;
@@ -63,7 +62,6 @@ export function Comment({
   trackUri: string;
   showThreadLine?: boolean;
   onReply?: (uri: string, cid: string, handle: string) => void;
-  onDeleted?: () => void;
 }) {
   const [deleting, setDeleting] = useState(false);
   const { data: profile } = useSWR(
@@ -77,7 +75,6 @@ export function Comment({
     setDeleting(true);
     try {
       await deleteComment(uri, trackUri);
-      onDeleted?.();
     } finally {
       setDeleting(false);
     }
@@ -181,7 +178,7 @@ function CommentLayout({
     <div className="flex flex-row gap-4">
       <div className="flex flex-col items-center">
         {avatar}
-        {showThreadLine && <div className="w-0.5 h-full pb-4 bg-primary" />}
+        {showThreadLine && <div className="w-0.5 h-full pb-12 bg-primary" />}
       </div>
       <div className="flex flex-col gap-1">{children}</div>
     </div>
