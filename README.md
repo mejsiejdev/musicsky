@@ -1,8 +1,8 @@
-# MusicSky
+# Musicsky
 
 > Listen and share music in the Atmosphere
 
-MusicSky is a social music platform built on the [AT Protocol](https://atproto.com/). Sign in with any ATProto-compatible server (Bluesky, self-hosted PDS, etc.) and share what you're listening to.
+Musicsky is a social music platform built on the [AT Protocol](https://atproto.com/). Sign in with any ATProto-compatible server (Bluesky, self-hosted PDS, etc.) and share what you're listening to.
 
 ## Tech Stack
 
