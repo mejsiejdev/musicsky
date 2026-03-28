@@ -13,6 +13,8 @@ export async function createComment(
   const text = (formData.get("text") as string).trim();
   const trackUri = formData.get("trackUri") as string;
   const trackCid = formData.get("trackCid") as string;
+  const parentUri = formData.get("parentUri") as string | null;
+  const parentCid = formData.get("parentCid") as string | null;
 
   if (!text || text.length === 0) {
     return fail(new Error("Comment cannot be empty."));
@@ -31,6 +33,10 @@ export async function createComment(
 
   try {
     const trackRef = { uri: trackUri, cid: trackCid };
+    const parentRef =
+      parentUri && parentCid
+        ? { uri: parentUri, cid: parentCid }
+        : trackRef;
 
     await agent.com.atproto.repo.createRecord({
       repo: agent.assertDid,
@@ -40,7 +46,7 @@ export async function createComment(
         text,
         reply: {
           root: trackRef,
-          parent: trackRef,
+          parent: parentRef,
         },
         createdAt: new Date().toISOString(),
       },
@@ -50,6 +56,29 @@ export async function createComment(
     return ok();
   } catch (error) {
     console.error("Failed to create comment:", error);
+    return fail(error);
+  }
+}
+
+export async function deleteComment(
+  commentUri: string,
+  trackUri: string,
+): Promise<ActionResult> {
+  const session = await requireSession();
+  const agent = new Agent(session);
+  const rkey = commentUri.split("/").pop()!;
+
+  try {
+    await agent.com.atproto.repo.deleteRecord({
+      repo: agent.assertDid,
+      collection: COLLECTIONS.comment,
+      rkey,
+    });
+
+    updateTag(`comments-${trackUri}`);
+    return ok();
+  } catch (error) {
+    console.error("Failed to delete comment:", error);
     return fail(error);
   }
 }

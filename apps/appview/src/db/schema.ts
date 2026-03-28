@@ -39,8 +39,10 @@ export interface CommentTable {
   rkey: string;
   subject_uri: string;
   parent_uri: string;
+  parent_cid: string;
   text: string;
   created_at: string;
+  deleted: number;
 }
 
 export interface DatabaseSchema {

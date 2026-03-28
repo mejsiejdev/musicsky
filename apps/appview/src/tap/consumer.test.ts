@@ -258,9 +258,11 @@ describe("handleComment", () => {
     expect(row?.parent_uri).toBe(
       "at://did:plc:abc/app.musicsky.temp.song/3jui7kd2zcszw",
     );
+    expect(row?.parent_cid).toBe("bafyreiabc");
+    expect(row?.deleted).toBe(0);
   });
 
-  it("deletes a comment on delete", async () => {
+  it("soft-deletes a comment on delete", async () => {
     await handleComment(
       {
         action: "create",
@@ -296,8 +298,10 @@ describe("handleComment", () => {
       db,
     );
 
-    const rows = await db.selectFrom("comment").selectAll().execute();
-    expect(rows).toHaveLength(0);
+    const row = await db.selectFrom("comment").selectAll().executeTakeFirst();
+    expect(row).toBeDefined();
+    expect(row?.deleted).toBe(1);
+    expect(row?.text).toBe("");
   });
 
   it("is idempotent — second insert with same URI is ignored", async () => {

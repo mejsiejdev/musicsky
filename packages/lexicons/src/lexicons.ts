@@ -26,8 +26,8 @@ export const schemaDict = {
             text: {
               type: 'string',
               minLength: 1,
-              maxLength: 5000,
-              maxGraphemes: 1000,
+              maxLength: 300,
+              maxGraphemes: 300,
               description: 'The comment text.',
             },
             reply: {
@@ -60,6 +60,101 @@ export const schemaDict = {
             ref: 'lex:com.atproto.repo.strongRef',
             description:
               "Strong reference to the immediate parent comment, or to the track itself if it's a top-level comment.",
+          },
+        },
+      },
+    },
+  },
+  AppMusicskyTempGetComments: {
+    lexicon: 1,
+    id: 'app.musicsky.temp.getComments',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get comments for a track.',
+        parameters: {
+          type: 'params',
+          required: ['uri'],
+          properties: {
+            uri: {
+              type: 'string',
+              description: 'AT URI of the track to get comments for.',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 50,
+              default: 20,
+              description: 'Maximum number of results.',
+            },
+            cursor: {
+              type: 'string',
+              description: 'Pagination cursor.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['comments', 'totalCount'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              totalCount: {
+                type: 'integer',
+                description: 'Total number of comments on this track.',
+              },
+              comments: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:app.musicsky.temp.getComments#commentView',
+                },
+              },
+            },
+          },
+        },
+      },
+      commentView: {
+        type: 'object',
+        required: ['uri', 'cid', 'text', 'author', 'createdAt'],
+        properties: {
+          uri: {
+            type: 'string',
+          },
+          cid: {
+            type: 'string',
+          },
+          text: {
+            type: 'string',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:app.musicsky.temp.getFeed#authorView',
+          },
+          createdAt: {
+            type: 'string',
+          },
+          parent: {
+            type: 'ref',
+            ref: 'lex:app.musicsky.temp.getComments#parentRef',
+          },
+          deleted: {
+            type: 'boolean',
+          },
+        },
+      },
+      parentRef: {
+        type: 'object',
+        required: ['uri', 'cid'],
+        properties: {
+          uri: {
+            type: 'string',
+          },
+          cid: {
+            type: 'string',
           },
         },
       },
@@ -406,6 +501,7 @@ export function validate(
 
 export const ids = {
   AppMusicskyTempComment: 'app.musicsky.temp.comment',
+  AppMusicskyTempGetComments: 'app.musicsky.temp.getComments',
   AppMusicskyTempGetFeed: 'app.musicsky.temp.getFeed',
   AppMusicskyTempLike: 'app.musicsky.temp.like',
   AppMusicskyTempPlaylist: 'app.musicsky.temp.playlist',

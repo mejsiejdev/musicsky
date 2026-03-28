@@ -16,15 +16,55 @@ interface CommentAuthor {
 
 interface CommentView {
   uri: string;
+  cid: string;
   text: string;
   author: CommentAuthor;
   createdAt: string;
+  parent?: { uri: string; cid: string };
+  deleted?: boolean;
 }
 
 interface CommentsResponse {
   comments: CommentView[];
   cursor?: string;
   totalCount: number;
+}
+
+interface CommentNode {
+  comment: CommentView;
+  children: CommentNode[];
+}
+
+const VISIBLE_REPLIES = 3;
+
+function buildThread(comments: CommentView[]): CommentNode[] {
+  const nodeMap = new Map<string, CommentNode>();
+  const roots: CommentNode[] = [];
+
+  for (const comment of comments) {
+    nodeMap.set(comment.uri, { comment, children: [] });
+  }
+
+  for (const comment of comments) {
+    const node = nodeMap.get(comment.uri)!;
+    if (comment.parent) {
+      const parentNode = nodeMap.get(comment.parent.uri);
+      if (parentNode) {
+        parentNode.children.push(node);
+        continue;
+      }
+    }
+    roots.push(node);
+  }
+
+  return pruneDeletedLeaves(roots);
+}
+
+function pruneDeletedLeaves(nodes: CommentNode[]): CommentNode[] {
+  return nodes.filter((node) => {
+    node.children = pruneDeletedLeaves(node.children);
+    return !node.comment.deleted || node.children.length > 0;
+  });
 }
 
 async function fetchComments(url: string): Promise<CommentsResponse> {
@@ -38,52 +78,75 @@ export function CommentSection({
   cid,
   songTitle,
   isLoggedIn,
+  userDid,
+  userHandle,
 }: {
   uri: string;
   cid: string | undefined;
   songTitle: string;
   isLoggedIn: boolean;
+  userDid?: string;
+  userHandle?: string;
 }) {
-  const [extraComments, setExtraComments] = useState<CommentView[]>([]);
-  const [cursor, setCursor] = useState<string | undefined>();
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [replyTarget, setReplyTarget] = useState<{
+    uri: string;
+    cid: string;
+    handle: string;
+  } | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/comments?uri=${encodeURIComponent(uri)}&limit=20`,
+    `/api/comments?uri=${encodeURIComponent(uri)}&limit=${MAX_LIMIT}`,
     fetchComments,
+    { refreshInterval: 60_000 },
   );
 
-  const handleCommentPosted = useCallback(() => {
-    setExtraComments([]);
-    setCursor(undefined);
+  const handleCommentPosted = useCallback(
+    (text: string) => {
+      const parent = replyTarget;
+      setReplyTarget(null);
+
+      if (userDid && userHandle) {
+        const optimisticComment: CommentView = {
+          uri: `at://${userDid}/app.musicsky.temp.comment/${Date.now()}`,
+          cid: "optimistic",
+          text,
+          author: { did: userDid, handle: userHandle, pds: "" },
+          createdAt: new Date().toISOString(),
+          ...(parent ? { parent: { uri: parent.uri, cid: parent.cid } } : {}),
+        };
+
+        void mutate(
+          (current) => {
+            if (!current) return current;
+            return {
+              ...current,
+              totalCount: current.totalCount + 1,
+              comments: [...current.comments, optimisticComment],
+            };
+          },
+          { revalidate: true },
+        );
+      } else {
+        void mutate();
+      }
+    },
+    [mutate, replyTarget, userDid, userHandle],
+  );
+
+  const handleReply = useCallback(
+    (commentUri: string, commentCid: string, handle: string) => {
+      setReplyTarget({ uri: commentUri, cid: commentCid, handle });
+    },
+    [],
+  );
+
+  const handleDeleted = useCallback(() => {
     void mutate();
   }, [mutate]);
 
-  const initialCursor = data?.cursor;
-  const activeCursor = cursor ?? initialCursor;
-
-  async function handleLoadMore() {
-    if (!activeCursor) return;
-    setLoadingMore(true);
-    try {
-      const params = new URLSearchParams({
-        uri,
-        limit: "20",
-        cursor: activeCursor,
-      });
-      const res = await fetchComments(
-        `/api/comments?${params.toString()}`,
-      );
-      setExtraComments((prev) => [...prev, ...res.comments]);
-      setCursor(res.cursor);
-    } finally {
-      setLoadingMore(false);
-    }
-  }
-
-  const allComments = [...(data?.comments ?? []), ...extraComments];
+  const allComments = data?.comments ?? [];
   const totalCount = data?.totalCount ?? 0;
-  const hasMore = Boolean(activeCursor) && allComments.length < totalCount;
+  const threadRoots = allComments.length > 0 ? buildThread(allComments) : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -101,8 +164,11 @@ export function CommentSection({
           uri={uri}
           cid={cid}
           songTitle={songTitle}
-          onClose={() => {}}
+          onClose={() => setReplyTarget(null)}
           onCommentPosted={handleCommentPosted}
+          parentUri={replyTarget?.uri}
+          parentCid={replyTarget?.cid}
+          replyToHandle={replyTarget?.handle}
         />
       )}
 
@@ -132,29 +198,90 @@ export function CommentSection({
         </p>
       )}
 
-      {allComments.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {allComments.map((comment) => (
-            <Comment
-              key={comment.uri}
-              text={comment.text}
-              author={comment.author}
-              createdAt={comment.createdAt}
+      {threadRoots.length > 0 && (
+        <div className="flex flex-col">
+          {threadRoots.map((node) => (
+            <CommentThread
+              key={node.comment.uri}
+              node={node}
+              trackUri={uri}
+              userDid={userDid}
+              isLoggedIn={isLoggedIn}
+              onReply={handleReply}
+              onDeleted={handleDeleted}
             />
           ))}
         </div>
       )}
+    </div>
+  );
+}
 
-      {hasMore && (
+const MAX_LIMIT = 50;
+
+function CommentThread({
+  node,
+  trackUri,
+  userDid,
+  isLoggedIn,
+  onReply,
+  onDeleted,
+}: {
+  node: CommentNode;
+  trackUri: string;
+  userDid?: string;
+  isLoggedIn: boolean;
+  onReply: (uri: string, cid: string, handle: string) => void;
+  onDeleted: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const { comment, children } = node;
+
+  const visibleChildren = expanded
+    ? children
+    : children.slice(0, VISIBLE_REPLIES);
+  const hiddenCount = expanded ? 0 : children.length - VISIBLE_REPLIES;
+  const hasVisibleChildren = visibleChildren.length > 0 || hiddenCount > 0;
+
+  return (
+    <>
+      <Comment
+        uri={comment.uri}
+        cid={comment.cid}
+        text={comment.text}
+        author={comment.author}
+        createdAt={comment.createdAt}
+        deleted={comment.deleted}
+        isOwn={userDid === comment.author.did}
+        isLoggedIn={isLoggedIn}
+        trackUri={trackUri}
+        showThreadLine={hasVisibleChildren}
+        onReply={onReply}
+        onDeleted={onDeleted}
+      />
+
+      {visibleChildren.map((child) => (
+        <CommentThread
+          key={child.comment.uri}
+          node={child}
+          trackUri={trackUri}
+          userDid={userDid}
+          isLoggedIn={isLoggedIn}
+          onReply={onReply}
+          onDeleted={onDeleted}
+        />
+      ))}
+
+      {hiddenCount > 0 && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => void handleLoadMore()}
-          disabled={loadingMore}
+          className="h-7 text-xs text-muted-foreground"
+          onClick={() => setExpanded(true)}
         >
-          {loadingMore ? "Loading..." : "Load more comments"}
+          Show {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}
         </Button>
       )}
-    </div>
+    </>
   );
 }
