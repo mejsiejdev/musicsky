@@ -23,6 +23,10 @@
           "cursor": {
             "type": "string",
             "description": "Pagination cursor."
+          },
+          "viewer": {
+            "type": "string",
+            "description": "DID of the viewer, used to include viewer state (e.g. liked)."
           }
         }
       },
@@ -66,7 +70,18 @@
           "type": "ref",
           "ref": "#parentRef"
         },
-        "deleted": { "type": "boolean" }
+        "deleted": { "type": "boolean" },
+        "likeCount": { "type": "integer" },
+        "viewer": {
+          "type": "ref",
+          "ref": "#viewerState"
+        }
+      }
+    },
+    "viewerState": {
+      "type": "object",
+      "properties": {
+        "like": { "type": "string", "description": "URI of the viewer's like record, if liked." }
       }
     },
     "parentRef": {
