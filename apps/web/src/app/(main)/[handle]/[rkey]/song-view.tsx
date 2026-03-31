@@ -14,7 +14,30 @@ import {
   mapRecordToSong,
 } from "@/lib/songs";
 
-async function getSong(pds: string, did: string, handle: string, rkey: string) {
+export async function getUserProfile(
+  did: string,
+): Promise<{ avatar?: string; displayName?: string }> {
+  try {
+    const res = await fetch(
+      `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`,
+    );
+    if (!res.ok) return {};
+    const data = (await res.json()) as {
+      avatar?: string;
+      displayName?: string;
+    };
+    return { avatar: data.avatar, displayName: data.displayName };
+  } catch {
+    return {};
+  }
+}
+
+export async function getSong(
+  pds: string,
+  did: string,
+  handle: string,
+  rkey: string,
+) {
   "use cache";
   cacheTag(`song-${did}-${rkey}`);
   const agent = new Agent(pds);
@@ -62,29 +85,44 @@ export async function SongView({
   }
 
   const isOwner = session?.did === song.uri.split("/")[2];
-  const userHandle = session
-    ? await getHandleFromDid(session.did)
-    : undefined;
+  const songAuthorProfile = await getUserProfile(profileDid);
+  const [userHandle, userProfile] = session
+    ? await Promise.all([
+        getHandleFromDid(session.did),
+        getUserProfile(session.did),
+      ])
+    : [undefined, {}];
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <Song
         {...song}
         isOwner={isOwner}
         loggedIn={session !== null}
         likeRkey={likedUris.get(song.uri) ?? null}
         repostRkey={repostedUris.get(song.uri) ?? null}
+        userAvatar={userProfile.avatar}
+        userHandle={userHandle}
+        songAuthorAvatar={songAuthorProfile.avatar}
       />
       <Suspense>
         <CommentSection
           uri={song.uri}
           cid={song.cid}
+          songHandle={handle}
+          songRkey={rkey}
           songTitle={song.title}
+          songCoverArt={song.coverArt}
+          songAuthor={song.author}
+          songAuthorDisplayName={songAuthorProfile.displayName}
+          songAuthorAvatar={songAuthorProfile.avatar}
+          songDescription={song.description}
           isLoggedIn={session !== null}
           userDid={session?.did}
           userHandle={userHandle}
+          userAvatar={userProfile.avatar}
         />
       </Suspense>
-    </>
+    </div>
   );
 }

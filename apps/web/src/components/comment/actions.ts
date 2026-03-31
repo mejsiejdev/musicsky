@@ -2,7 +2,7 @@
 
 import { Agent } from "@atproto/api";
 import { updateTag } from "next/cache";
-import { COLLECTIONS } from "@/lib/atproto";
+import { COLLECTIONS, getRkeyFromUri } from "@/lib/atproto";
 import { type ActionResult, ok, fail } from "@/lib/action-result";
 import { requireSession } from "@/lib/repo";
 
@@ -58,6 +58,40 @@ export async function createComment(
     console.error("Failed to create comment:", error);
     return fail(error);
   }
+}
+
+export async function likeCommentAction(
+  commentUri: string,
+  commentCid: string,
+  trackUri: string,
+): Promise<string | undefined> {
+  const session = await requireSession();
+  const agent = new Agent(session);
+  const result = await agent.com.atproto.repo.createRecord({
+    repo: agent.assertDid,
+    collection: COLLECTIONS.like,
+    record: {
+      $type: COLLECTIONS.like,
+      subject: { uri: commentUri, cid: commentCid },
+      createdAt: new Date().toISOString(),
+    },
+  });
+  updateTag(`comments-${trackUri}`);
+  return getRkeyFromUri(result.data.uri);
+}
+
+export async function unlikeCommentAction(
+  rkey: string,
+  trackUri: string,
+): Promise<void> {
+  const session = await requireSession();
+  const agent = new Agent(session);
+  await agent.com.atproto.repo.deleteRecord({
+    repo: agent.assertDid,
+    collection: COLLECTIONS.like,
+    rkey,
+  });
+  updateTag(`comments-${trackUri}`);
 }
 
 export async function deleteComment(

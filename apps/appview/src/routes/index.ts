@@ -2,6 +2,7 @@ import type { Express } from "express";
 import type { IdentityResolver } from "../identity/resolver.js";
 import { getFeedHandler } from "./feed.js";
 import { getCommentsHandler } from "./comments.js";
+import { getCommentCountsHandler } from "./comment-counts.js";
 import { createBlobHandler } from "./blob.js";
 
 export function registerRoutes(app: Express, resolver: IdentityResolver): void {
@@ -19,6 +20,13 @@ export function registerRoutes(app: Express, resolver: IdentityResolver): void {
   app.get("/xrpc/app.musicsky.temp.getComments", (req, res) => {
     getCommentsHandler(req, res).catch((err) => {
       console.error("getComments error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    });
+  });
+
+  app.get("/xrpc/app.musicsky.temp.getCommentCounts", (req, res) => {
+    getCommentCountsHandler(req, res).catch((err) => {
+      console.error("getCommentCounts error:", err);
       res.status(500).json({ error: "Internal server error" });
     });
   });

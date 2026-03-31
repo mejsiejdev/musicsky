@@ -16,6 +16,7 @@ export interface SongView {
   record: unknown;
   likeCount?: number;
   repostCount?: number;
+  commentCount?: number;
   viewer?: ViewerState;
   indexedAt: string;
   createdAt: string;

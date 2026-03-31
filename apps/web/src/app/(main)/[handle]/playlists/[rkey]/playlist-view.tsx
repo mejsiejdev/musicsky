@@ -11,6 +11,7 @@ import { mapRecordToPlaylist, resolvePlaylistTracks } from "@/lib/playlists";
 import { PlaylistMenu } from "@/components/playlist/playlist-menu";
 import { PlaylistQueueProvider } from "@/components/playlist/playlist-queue-context";
 import { ListMusicIcon } from "lucide-react";
+import { getCommentCounts } from "@/lib/comments";
 
 async function getPlaylist(
   pds: string,
@@ -71,6 +72,11 @@ export async function PlaylistView({
 
   const isOwner = session?.did === playlist.uri.split("/")[2];
   const resolvedTracks = await resolvePlaylistTracks(playlist.tracks, session);
+
+  const trackUris = resolvedTracks
+    .filter((track): track is NonNullable<typeof track> => track !== null)
+    .map((track) => track.uri);
+  const commentCounts = await getCommentCounts(trackUris);
 
   const queueSongs: PlayerSong[] = resolvedTracks
     .filter((track): track is NonNullable<typeof track> => track !== null)
@@ -148,6 +154,7 @@ export async function PlaylistView({
               <Song
                 key={track.uri}
                 {...track}
+                commentCount={commentCounts.get(track.uri) ?? 0}
                 playlistRkey={isOwner ? rkey : undefined}
                 isLastTrack={playlist.trackCount <= 1}
               />

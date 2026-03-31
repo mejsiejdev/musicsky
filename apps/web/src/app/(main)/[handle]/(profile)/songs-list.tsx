@@ -13,6 +13,7 @@ import {
 } from "@/lib/songs";
 import { COLLECTIONS, isResourceOwner } from "@/lib/atproto";
 import { PlaylistQueueProvider } from "@/components/playlist/playlist-queue-context";
+import { getCommentCounts } from "@/lib/comments";
 
 async function getSongs(pds: string, did: string, handle: string) {
   "use cache";
@@ -57,6 +58,8 @@ export async function SongsList({
     getUserInteractions(session),
   ]);
 
+  const commentCounts = await getCommentCounts(songs.map((song) => song.uri));
+
   const queueSongs: PlayerSong[] = songs.map((song) => ({
     uri: song.uri,
     cid: song.cid,
@@ -73,6 +76,7 @@ export async function SongsList({
       {songs.map((song) => {
         const songProps: SongProps = {
           ...song,
+          commentCount: commentCounts.get(song.uri) ?? 0,
           isOwner: isResourceOwner(session?.did, song.uri),
           loggedIn: session !== null,
           likeRkey: likedUris.get(song.uri) ?? null,

@@ -21,6 +21,7 @@ export async function getCommentsHandler(
     MAX_LIMIT,
   );
   const cursor = req.query["cursor"] as string | undefined;
+  const viewer = req.query["viewer"] as string | undefined;
 
   const db = getDb();
 
@@ -73,21 +74,65 @@ export async function getCommentsHandler(
 
   const totalCount = Number(countResult.count);
 
-  const comments: CommentView[] = rows.map((row) => ({
-    uri: row.uri,
-    cid: row.cid,
-    text: row.deleted ? "" : row.text,
-    author: {
-      did: row.did,
-      handle: row.handle,
-      pds: row.pds,
-    },
-    createdAt: row.created_at,
-    ...(row.parent_uri !== row.subject_uri
-      ? { parent: { uri: row.parent_uri, cid: row.parent_cid } }
-      : {}),
-    ...(row.deleted ? { deleted: true } : {}),
-  }));
+  const commentUris = rows.map((row) => row.uri);
+
+  const [likeCounts, viewerLikes] = await Promise.all([
+    commentUris.length > 0
+      ? db
+          .selectFrom("like")
+          .select(["subject_uri"])
+          .select((eb) => eb.fn.count<number>("uri").as("count"))
+          .where("subject_uri", "in", commentUris)
+          .groupBy("subject_uri")
+          .execute()
+      : Promise.resolve([]),
+    commentUris.length > 0 && viewer
+      ? db
+          .selectFrom("like")
+          .select(["subject_uri", "uri"])
+          .where("did", "=", viewer)
+          .where("subject_uri", "in", commentUris)
+          .execute()
+      : Promise.resolve([]),
+  ]);
+
+  const likeCountMap = new Map<string, number>(
+    likeCounts.map((row) => [row.subject_uri, Number(row.count)]),
+  );
+  const viewerLikeMap = new Map<string, string>(
+    viewerLikes.map((row) => [row.subject_uri, row.uri]),
+  );
+
+  const comments: CommentView[] = rows.map((row) => {
+    const isReply = row.parent_uri !== row.subject_uri;
+
+    const comment: CommentView = {
+      uri: row.uri,
+      cid: row.cid,
+      text: row.deleted ? "" : row.text,
+      author: {
+        did: row.did,
+        handle: row.handle,
+        pds: row.pds,
+      },
+      createdAt: row.created_at,
+    };
+
+    if (isReply) {
+      comment.parent = { uri: row.parent_uri, cid: row.parent_cid };
+    }
+    if (row.deleted) {
+      comment.deleted = true;
+    }
+    if (likeCountMap.has(row.uri)) {
+      comment.likeCount = likeCountMap.get(row.uri);
+    }
+    if (viewer) {
+      comment.viewer = { like: viewerLikeMap.get(row.uri) };
+    }
+
+    return comment;
+  });
 
   const lastRow = rows[rows.length - 1];
   const nextCursor = lastRow

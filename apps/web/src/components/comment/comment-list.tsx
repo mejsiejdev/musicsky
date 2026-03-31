@@ -1,56 +1,38 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import Link from "next/link";
 import { Comment } from "./comment";
-import { CommentInput } from "./comment-input";
-import { Button } from "@/components/ui/button";
-import type { CommentNode } from "./comment-section";
+import type { CommentNode } from "@/lib/comment-tree";
+
+function getRkey(uri: string) {
+  return uri.split("/")[4]!;
+}
 
 const VISIBLE_REPLIES = 3;
 
 export function CommentList({
   uri,
   cid,
-  songTitle,
+  songHandle,
+  songRkey,
   isLoggedIn,
   userDid,
+  userAvatar,
+  userHandle,
   threadRoots,
 }: {
   uri: string;
   cid: string | undefined;
-  songTitle: string;
+  songHandle: string;
+  songRkey: string;
   isLoggedIn: boolean;
   userDid?: string;
+  userAvatar?: string;
   userHandle?: string;
   threadRoots: CommentNode[];
 }) {
-  const [replyTarget, setReplyTarget] = useState<{
-    uri: string;
-    cid: string;
-    handle: string;
-  } | null>(null);
-
-  const handleReply = useCallback(
-    (commentUri: string, commentCid: string, handle: string) => {
-      setReplyTarget({ uri: commentUri, cid: commentCid, handle });
-    },
-    [],
-  );
-
   return (
     <>
-      {isLoggedIn && cid && (
-        <CommentInput
-          uri={uri}
-          cid={cid}
-          songTitle={songTitle}
-          onClose={() => setReplyTarget(null)}
-          parentUri={replyTarget?.uri}
-          parentCid={replyTarget?.cid}
-          replyToHandle={replyTarget?.handle}
-        />
-      )}
-
       {threadRoots.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No comments yet. Be the first to comment!
@@ -64,9 +46,13 @@ export function CommentList({
               key={node.comment.uri}
               node={node}
               trackUri={uri}
+              trackCid={cid}
+              songHandle={songHandle}
+              songRkey={songRkey}
               userDid={userDid}
               isLoggedIn={isLoggedIn}
-              onReply={handleReply}
+              userAvatar={userAvatar}
+              userHandle={userHandle}
             />
           ))}
         </div>
@@ -78,23 +64,30 @@ export function CommentList({
 function CommentThread({
   node,
   trackUri,
+  trackCid,
+  songHandle,
+  songRkey,
   userDid,
   isLoggedIn,
-  onReply,
+  userAvatar,
+  userHandle,
 }: {
   node: CommentNode;
   trackUri: string;
+  trackCid: string | undefined;
+  songHandle: string;
+  songRkey: string;
   userDid?: string;
   isLoggedIn: boolean;
-  onReply: (uri: string, cid: string, handle: string) => void;
+  userAvatar?: string;
+  userHandle?: string;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const { comment, children } = node;
+  const commentRkey = getRkey(comment.uri);
+  const commentHref = `/${songHandle}/${songRkey}/${commentRkey}`;
 
-  const visibleChildren = expanded
-    ? children
-    : children.slice(0, VISIBLE_REPLIES);
-  const hiddenCount = expanded ? 0 : children.length - VISIBLE_REPLIES;
+  const visibleChildren = children.slice(0, VISIBLE_REPLIES);
+  const hiddenCount = children.length - VISIBLE_REPLIES;
   const hasVisibleChildren = visibleChildren.length > 0 || hiddenCount > 0;
 
   return (
@@ -109,30 +102,40 @@ function CommentThread({
         isOwn={userDid === comment.author.did}
         isLoggedIn={isLoggedIn}
         trackUri={trackUri}
+        trackCid={trackCid}
         showThreadLine={hasVisibleChildren}
-        onReply={onReply}
+        href={commentHref}
+        replyCount={node.children.length}
+        likeCount={comment.likeCount}
+        likeRkey={comment.viewer?.like ? getRkey(comment.viewer.like) : null}
+        userAvatar={userAvatar}
+        userHandle={userHandle}
+        songHandle={songHandle}
+        songRkey={songRkey}
       />
 
-      {visibleChildren.map((child) => (
+      {visibleChildren.map((child: CommentNode) => (
         <CommentThread
           key={child.comment.uri}
           node={child}
           trackUri={trackUri}
+          trackCid={trackCid}
+          songHandle={songHandle}
+          songRkey={songRkey}
           userDid={userDid}
           isLoggedIn={isLoggedIn}
-          onReply={onReply}
+          userAvatar={userAvatar}
+          userHandle={userHandle}
         />
       ))}
 
       {hiddenCount > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 text-xs text-muted-foreground"
-          onClick={() => setExpanded(true)}
+        <Link
+          href={commentHref}
+          className="h-7 text-xs text-muted-foreground hover:underline pl-12"
         >
           Show {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}
-        </Button>
+        </Link>
       )}
     </>
   );

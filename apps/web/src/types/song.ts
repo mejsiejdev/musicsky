@@ -21,6 +21,7 @@ export interface SongData {
   description: string | null;
   author: string;
   createdAt: string;
+  commentCount?: number;
 }
 
 export interface SongInteraction {
@@ -31,6 +32,9 @@ export interface SongInteraction {
 export interface SongContext {
   isOwner: boolean;
   loggedIn: boolean;
+  userAvatar?: string;
+  userHandle?: string;
+  songAuthorAvatar?: string;
 }
 
 export interface SongPlaylistContext {

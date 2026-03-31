@@ -20,6 +20,7 @@ import {
 } from "@/lib/atproto";
 import { HeartCrackIcon } from "lucide-react";
 import { PlaylistQueueProvider } from "@/components/playlist/playlist-queue-context";
+import { getCommentCounts } from "@/lib/comments";
 
 interface LikeRecord {
   subject: {
@@ -155,6 +156,8 @@ export async function LikesList({
     getUserInteractions(session),
   ]);
 
+  const commentCounts = await getCommentCounts(songs.map((song) => song.uri));
+
   if (songs.length === 0) {
     return (
       <div className="flex flex-row text-muted-foreground items-center gap-4">
@@ -180,6 +183,7 @@ export async function LikesList({
       {songs.map((song) => {
         const songProps: SongProps = {
           ...song,
+          commentCount: commentCounts.get(song.uri) ?? 0,
           isOwner: isResourceOwner(session?.did, song.uri),
           loggedIn: session !== null,
           likeRkey: likedUris.get(song.uri) ?? null,
