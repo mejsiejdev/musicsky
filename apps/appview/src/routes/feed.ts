@@ -83,7 +83,7 @@ export async function getFeedHandler(
     for (const r of reposts) viewerReposts.set(r.subject_uri, r.uri);
   }
 
-  const [likeCounts, repostCounts] = await Promise.all([
+  const [likeCounts, repostCounts, commentCounts] = await Promise.all([
     db
       .selectFrom("like")
       .select(["subject_uri"])
@@ -98,6 +98,14 @@ export async function getFeedHandler(
       .where("subject_uri", "in", uris)
       .groupBy("subject_uri")
       .execute(),
+    db
+      .selectFrom("comment")
+      .select(["subject_uri"])
+      .select((eb) => eb.fn.count<number>("uri").as("count"))
+      .where("subject_uri", "in", uris)
+      .where("deleted", "=", 0)
+      .groupBy("subject_uri")
+      .execute(),
   ]);
 
   const likeCountMap = new Map(
@@ -105,6 +113,9 @@ export async function getFeedHandler(
   );
   const repostCountMap = new Map(
     repostCounts.map((r) => [r.subject_uri, Number(r.count)]),
+  );
+  const commentCountMap = new Map(
+    commentCounts.map((r) => [r.subject_uri, Number(r.count)]),
   );
 
   const songs: SongView[] = rows.map((row) => ({
@@ -118,6 +129,7 @@ export async function getFeedHandler(
     record: JSON.parse(row.record) as unknown,
     likeCount: likeCountMap.get(row.uri) ?? 0,
     repostCount: repostCountMap.get(row.uri) ?? 0,
+    commentCount: commentCountMap.get(row.uri) ?? 0,
     viewer: viewer
       ? {
           like: viewerLikes.get(row.uri),

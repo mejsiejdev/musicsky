@@ -24,6 +24,7 @@ interface SongView {
   record: unknown;
   likeCount?: number;
   repostCount?: number;
+  commentCount?: number;
   viewer?: ViewerState;
   indexedAt: string;
   createdAt?: string;
@@ -66,6 +67,7 @@ function songViewToProps(
     description: record.description ?? null,
     author: song.author.handle,
     createdAt: song.createdAt ?? song.indexedAt,
+    commentCount: song.commentCount,
     isOwner: sessionDid === song.author.did,
     loggedIn: sessionDid !== undefined,
     likeRkey: song.viewer?.like ? getRkeyFromUri(song.viewer.like) : null,

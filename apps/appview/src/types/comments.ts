@@ -8,6 +8,8 @@ export interface CommentView {
   createdAt: string;
   parent?: { uri: string; cid: string };
   deleted?: boolean;
+  likeCount?: number;
+  viewer?: { like?: string };
 }
 
 export interface CommentsOutput {
