@@ -223,7 +223,7 @@ export function CommentDialog({
               placeholder="Write your reply"
               aria-label={isReply ? "Reply to comment" : "Add a comment"}
               disabled={pending}
-              className="min-h-20 resize-none border-0 p-0 shadow-none focus-visible:ring-0"
+              className="min-h-20 resize-none border-0 shadow-none focus-visible:ring-0"
               autoFocus
             />
           </CommentLayout>
